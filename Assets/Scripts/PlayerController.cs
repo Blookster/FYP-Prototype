@@ -17,15 +17,21 @@ public class PlayerController : MonoBehaviour
     public float playerJumpHeight = 5f;
     public FighterState currentState;
 
-    [Header("Hand References")]
-    public Transform leftHand;
-    public Transform rightHand;
+    [Header("Tracking References")]
+    public Transform headCamera; // Drag your Main Camera here
+    public Transform leftHand;   // Player Hand 
+    public Transform rightHand;  
 
     [Header("Special Weapon Power Settings")]
     public bool isSpecialActive = false;
     public float specialDuration = 10f;
     private float specialTimer;
-    public float fistBumpDistanceThreshold = 0.15f; 
+    public float fistBumpDistanceThreshold = 0.15f;
+
+    [Header("Combat Settings")]
+    public float attackExtensionThreshold = 0.4f; // How far forward hands must move to consider it as a punch
+    private bool isBlockingInput = false;
+    private bool isDodgeInput = false;
 
     private Rigidbody rb;
 
@@ -37,6 +43,50 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        UpdatePlayerInputs();
+
+        // 2. State Machine Logic Loop
+        switch (currentState)
+        {
+            case FighterState.Idle:
+                // Hands down: vulnerable to incoming hits
+                if (CheckArmExtension())
+                {
+                    currentState = FighterState.Attack;
+                }
+                break;
+
+            case FighterState.Attack:
+                // Hand is extended outward to punch
+                // Hit detection is handled via collision scripts with the enemy
+                if (!CheckArmExtension())
+                {
+                    currentState = FighterState.Idle; // Return to idle when pulling hands back
+                }
+                break;
+
+            case FighterState.Blocking:
+                // Hands up guarding: reduces or negates incoming damage
+                if (!isBlockingInput)
+                {
+                    currentState = FighterState.Idle;
+                }
+                break;
+
+            case FighterState.Dodge:
+                // Shifted backward/sideways: out of enemy range if timed right
+                if (!isDodgeInput)
+                {
+                    currentState = FighterState.Idle;
+                }
+                break;
+
+            case FighterState.BeenHit:
+                // Stunned or taking damage after a failed defense/bad dodge
+                // Handled externally when an enemy attack collider hits the player
+                break;
+        }
+
         // Handle special weapon timer
         if (isSpecialActive)
         {
@@ -52,6 +102,32 @@ public class PlayerController : MonoBehaviour
 
         // Check for Ground Slam Jump
         CheckGroundSlamJump();
+    }
+
+    void UpdatePlayerInputs()
+    {
+        // Example: Holding a button or raising hands triggers blocking/dodging
+        // You can link these to Meta Quest 3 controller buttons (e.g., Grip button for dodge)
+        isBlockingInput = Input.GetKey(KeyCode.F); // Replace with XR Input action if needed
+        isDodgeInput = Input.GetKey(KeyCode.Space); // Replace with Grip button input
+
+        if (isBlockingInput && currentState != FighterState.BeenHit) // if the the player is holding up both hands then player state is blocking
+        {
+            currentState = FighterState.Blocking;
+        }
+        else if (isDodgeInput && currentState != FighterState.BeenHit) // if the player is dodging then player state is dodging
+        {
+            currentState = FighterState.Dodge;
+        }
+    }
+
+    bool CheckArmExtension()
+    {
+        // Check if either hand controller is pushed forward relative to the headset camera
+        float leftZ = leftHand.position.z - headCamera.position.z;
+        float rightZ = rightHand.position.z - headCamera.position.z;
+
+        return (leftZ > attackExtensionThreshold || rightZ > attackExtensionThreshold);
     }
 
     void CheckFistBump()
@@ -100,6 +176,32 @@ public class PlayerController : MonoBehaviour
                 rb.linearVelocity = new Vector3(rb.linearVelocity.x, playerJumpHeight, rb.linearVelocity.z);
                 currentState = FighterState.Dodge;
                 Debug.Log("Ground Slam Jump Triggered!");
+            }
+        }
+    }
+
+    public void TakeDamage(float damageAmount)
+    {
+        if (currentState == FighterState.Blocking)
+        {
+            Debug.Log("Attack blocked! Reduced or zero damage taken.");
+            // Apply reduced damage here if desired
+            playerHP -= (damageAmount * 0.2f);
+        }
+        else if (currentState == FighterState.Dodge)
+        {
+            Debug.Log("Dodged successfully! Out of range, zero damage.");
+        }
+        else
+        {
+            // Vulnerable in Idle or bad dodge timing -> Full damage + BeenHit state
+            currentState = FighterState.BeenHit;
+            playerHP -= damageAmount;
+            Debug.Log("Hit! Player HP remaining: " + playerHP);
+
+            if (playerHP <= 0)
+            {
+                Debug.Log("Player Knocked Out (KO)!");
             }
         }
     }
