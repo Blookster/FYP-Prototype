@@ -13,6 +13,7 @@ public class EnemyHitReceiver : MonoBehaviour
     {
         if (other.CompareTag("PlayerHand"))
         {
+            Debug.Log($"[EnemyHitReceiver] Hit by {other.name} on {gameObject.name}");
             if (enemyController != null)
             {
                 Vector3 hitDir = (enemyController.transform.position - other.transform.position).normalized;

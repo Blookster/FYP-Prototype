@@ -265,7 +265,14 @@ public class EnemyController : MonoBehaviour
         if (leftPunchTrail) leftPunchTrail.Play();
         if (rightPunchTrail) rightPunchTrail.Play();
         
-        yield return new WaitForSeconds(attackActiveTime);
+        // Wait half the attack time then deal damage (mid-punch)
+        yield return new WaitForSeconds(attackActiveTime * 0.5f);
+        
+        // Deal damage via OnAttackHit (called from coroutine since no animation events)
+        var player = playerTarget.GetComponent<PlayerController>();
+        OnAttackHit(player);
+        
+        yield return new WaitForSeconds(attackActiveTime * 0.5f);
 
         // Phase 2: Recovery
         attackPhase = 2;
@@ -403,15 +410,16 @@ public class EnemyController : MonoBehaviour
 
     public void TakeDamage(float damage, Vector3 hitDirection)
     {
+        Debug.Log($"[EnemyController] TakeDamage called - State: {currentEnemyState}, Damage: {damage}, HP before: {enemyHP}");
         if (currentEnemyState == FighterState.Blocking)
         {
             enemyHP -= damage * 0.2f;
-            Debug.Log("Enemy blocked! HP: " + enemyHP);
+            Debug.Log($"[EnemyController] Enemy blocked! HP: {enemyHP}");
             StartCoroutine(HitFlash(Color.blue));
         }
         else if (currentEnemyState == FighterState.Dodge)
         {
-            Debug.Log("Enemy dodged!");
+            Debug.Log("[EnemyController] Enemy dodged!");
             StartCoroutine(HitFlash(Color.green));
             return;
         }
@@ -421,7 +429,7 @@ public class EnemyController : MonoBehaviour
             currentEnemyState = FighterState.BeenHit;
             stateTimer = 0.8f;
             inCounterAttackPattern = false;
-            Debug.Log("Enemy hit! HP: " + enemyHP);
+            Debug.Log($"[EnemyController] Enemy hit! HP: {enemyHP}");
             StartCoroutine(HitFlash(Color.red));
         }
 
@@ -462,10 +470,12 @@ public class EnemyController : MonoBehaviour
 
     public void OnAttackHit(PlayerController player)
     {
+        Debug.Log($"[EnemyController] OnAttackHit called - isAttacking: {isAttacking}, attackPhase: {attackPhase}");
         if (player != null && isAttacking && attackPhase == 1)
         {
             Vector3 hitDir = (player.transform.position - transform.position).normalized;
             player.TakeDamage(15f, hitDir);
+            Debug.Log($"[EnemyController] Dealt damage to player");
         }
     }
 }

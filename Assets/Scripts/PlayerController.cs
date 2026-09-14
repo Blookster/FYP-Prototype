@@ -286,21 +286,22 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float damageAmount, Vector3 hitDirection = default)
     {
+        Debug.Log($"[PlayerController] TakeDamage called - State: {currentState}, Damage: {damageAmount}, HP before: {playerHP}");
         if (currentState == FighterState.Blocking)
         {
-            Debug.Log("Attack blocked! Reduced damage taken.");
+            Debug.Log("[PlayerController] Attack blocked! Reduced damage taken.");
             playerHP -= (damageAmount * 0.2f);
         }
         else if (currentState == FighterState.Dodge)
         {
-            Debug.Log("Dodged successfully! Zero damage.");
+            Debug.Log("[PlayerController] Dodged successfully! Zero damage.");
             return;
         }
         else
         {
             currentState = FighterState.BeenHit;
             playerHP -= damageAmount;
-            Debug.Log("Hit! Player HP remaining: " + playerHP);
+            Debug.Log($"[PlayerController] Hit! Player HP remaining: {playerHP}");
 
             // Visual feedback
             StartCoroutine(HitFlashRoutine());
@@ -308,7 +309,7 @@ public class PlayerController : MonoBehaviour
 
             if (playerHP <= 0)
             {
-                Debug.Log("Player Knocked Out (KO)! Enemy Wins!");
+                Debug.Log("[PlayerController] Player Knocked Out (KO)! Enemy Wins!");
             }
         }
 
