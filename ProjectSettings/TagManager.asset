@@ -31,6 +31,8 @@ TagManager:
   - SamplesInfoPanel
   - QDSUIToggleCheckboxRadio
   - QDSUIToggleThumbnail
+  - EnemyHand
+  - PlayerHand
   layers:
   - Default
   - TransparentFX
