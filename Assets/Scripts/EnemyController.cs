@@ -27,14 +27,15 @@ public class EnemyController : MonoBehaviour
     public float attackWindupTime = 0.5f;
     public float attackActiveTime = 0.25f;
     public float attackRecoveryTime = 0.4f;
+    public float counterAttackDelay = 0.5f;
 
     [Header("AI Pattern Settings")]
-    public float decisionInterval = 2f;
+    public float decisionInterval = 3f;
     public float attackCooldown = 2f;
     public float blockDuration = 1f;
     public float dodgeDuration = 0.6f;
     public float idleWindowDuration = 3f;
-    public float attackRange = 1.5f;
+    public float attackRange = 2.5f;
 
     [Header("Blocking Visual")]
     public float blockHandRaiseY = 0.35f;
@@ -65,9 +66,14 @@ public class EnemyController : MonoBehaviour
     private float attackTimer;
     private float stateTimer;
     private bool isAttacking = false;
-    private int attackPhase = 0; // 0=windup, 1=active, 2=recovery
-    private Coroutine currentCoroutine;
+    private int attackPhase = 0;
     private bool inCounterAttackPattern = false;
+    private bool isAlternatingPunch = true;
+    private bool useLeftPunch = true;
+    private Rigidbody rb;
+    private Vector3 targetPosition;
+    private bool hasTargetPosition = false;
+    private PlayerController playerController;
 
     void Start()
     {
@@ -82,58 +88,79 @@ public class EnemyController : MonoBehaviour
 
         DisableAttackColliders();
 
-        if (playerTarget == null)
+        rb = GetComponent<Rigidbody>();
+        playerController = playerTarget ? playerTarget.GetComponent<PlayerController>() : null;
+
+        if (playerController == null)
         {
             var player = FindObjectOfType<PlayerController>();
-            if (player != null) playerTarget = player.transform;
+            if (player != null)
+            {
+                playerController = player;
+                playerTarget = player.transform;
+            }
         }
 
         if (healthBarUI != null)
         {
             healthBarUI.SetHealth(enemyHP);
         }
+
+        Debug.Log("[EnemyController] Initialized. PlayerController found: " + (playerController != null));
     }
 
     void Update()
     {
-        if (playerTarget == null) return;
+        if (playerTarget == null || playerController == null) return;
 
         decisionTimer -= Time.deltaTime;
         attackTimer -= Time.deltaTime;
         stateTimer -= Time.deltaTime;
 
         HandleStateTransitions();
-        ExecuteCurrentState();
+        ExecuteCurrentStateVisuals();
+    }
+
+    void FixedUpdate()
+    {
+        ExecuteCurrentStateMovement();
     }
 
     void HandleStateTransitions()
     {
-        var player = playerTarget.GetComponent<PlayerController>();
         float dist = Vector3.Distance(transform.position, playerTarget.position);
 
         // BeenHit recovery
         if (currentEnemyState == FighterState.BeenHit && stateTimer <= 0)
         {
-            currentEnemyState = FighterState.Idle;
+            Debug.Log("[EnemyController] BeenHit recovery → Attack (aggressive)");
+            currentEnemyState = FighterState.Attack;
+            StartCoroutine(AttackSequence());
+            attackTimer = attackCooldown;
             inCounterAttackPattern = false;
+            return;
         }
 
         // Attack sequence handled via coroutine
         if (currentEnemyState == FighterState.Attack && !isAttacking)
         {
+            Debug.Log("[EnemyController] Attack finished → IdleWindow");
             currentEnemyState = FighterState.IdleWindow;
             stateTimer = idleWindowDuration;
             inCounterAttackPattern = false;
+            return;
         }
 
         // Blocking/Dodge/IdleWindow timers
         if ((currentEnemyState == FighterState.Blocking || currentEnemyState == FighterState.Dodge) && stateTimer <= 0)
         {
+            Debug.Log($"[EnemyController] {currentEnemyState} timer expired → Idle");
             currentEnemyState = FighterState.Idle;
         }
 
         if (currentEnemyState == FighterState.IdleWindow && stateTimer <= 0)
         {
+            Debug.Log("[EnemyController] IdleWindow expired → Idle");
             currentEnemyState = FighterState.Idle;
         }
 
@@ -145,148 +172,231 @@ public class EnemyController : MonoBehaviour
         // AI Decision Making
         if (decisionTimer <= 0 && currentEnemyState == FighterState.Idle)
         {
-            MakeDecision(dist, player);
+            MakeDecision(dist);
             decisionTimer = decisionInterval;
         }
     }
 
-    void MakeDecision(float dist, PlayerController player)
+    void MakeDecision(float dist)
     {
-        if (player == null) return;
-
-        // PATTERN: Player attacks -> Block -> Counter Attack -> Idle Window
-        if (player.currentState == PlayerController.FighterState.Attack)
+        // PATTERN: Player attacks → Block → Counter Attack (delayed) → Idle Window
+        if (playerController.currentState == PlayerController.FighterState.Attack)
         {
-            currentEnemyState = FighterState.Blocking;
-            stateTimer = blockDuration;
-            inCounterAttackPattern = true;
+            // Dodge instinctively (20%) or block (80%)
+            if (Random.value < 0.2f)
+            {
+                Debug.Log("[EnemyController] Player attacking → Instinctive DODGE");
+                currentEnemyState = FighterState.Dodge;
+                stateTimer = dodgeDuration;
+            }
+            else
+            {
+                Debug.Log("[EnemyController] Player attacking → BLOCK");
+                currentEnemyState = FighterState.Blocking;
+                stateTimer = blockDuration;
+                inCounterAttackPattern = true;
+            }
             return;
         }
 
-        // If we blocked and player finished attacking, FORCE counter attack
-        if (inCounterAttackPattern && player.currentState != PlayerController.FighterState.Attack && attackTimer <= 0)
+        // Counter-attack pattern: after blocking, wait for player to stop attacking, then counter
+        if (inCounterAttackPattern && playerController.currentState != PlayerController.FighterState.Attack && attackTimer <= 0)
         {
-            currentEnemyState = FighterState.Attack;
-            StartCoroutine(AttackSequence());
-            attackTimer = attackCooldown;
+            Debug.Log("[EnemyController] Counter-attack trigger → ATTACK (delayed)");
+            StartCoroutine(DelayedCounterAttack());
             return;
         }
 
-        // Normal decision making when not in counter pattern
-        if (!inCounterAttackPattern)
+        // Post-hit aggressive attack
+        if (currentEnemyState == FighterState.Idle && !inCounterAttackPattern)
         {
+            // Random decision during idle
+            float rand = Random.value;
             if (dist <= attackRange && attackTimer <= 0)
             {
-                currentEnemyState = FighterState.Attack;
-                StartCoroutine(AttackSequence());
-                attackTimer = attackCooldown;
-                return;
+                if (rand < 0.5f)
+                {
+                    Debug.Log("[EnemyController] In range → ATTACK");
+                    currentEnemyState = FighterState.Attack;
+                    StartCoroutine(AttackSequence());
+                    attackTimer = attackCooldown;
+                }
+                else if (rand < 0.8f)
+                {
+                    Debug.Log("[EnemyController] Random → BLOCK (preemptive)");
+                    currentEnemyState = FighterState.Blocking;
+                    stateTimer = blockDuration;
+                }
+                else
+                {
+                    Debug.Log("[EnemyController] Random → DODGE");
+                    currentEnemyState = FighterState.Dodge;
+                    stateTimer = dodgeDuration;
+                }
             }
-
-            // Random behavior
-            float rand = Random.value;
-            if (rand < 0.4f)
+            else if (rand < 0.6f)
             {
+                Debug.Log("[EnemyController] Random → IDLE");
                 currentEnemyState = FighterState.Idle;
             }
-            else if (rand < 0.7f)
+            else if (rand < 0.8f)
             {
+                Debug.Log("[EnemyController] Random → BLOCK (preemptive)");
                 currentEnemyState = FighterState.Blocking;
                 stateTimer = blockDuration;
             }
             else
             {
+                Debug.Log("[EnemyController] Random → DODGE");
                 currentEnemyState = FighterState.Dodge;
                 stateTimer = dodgeDuration;
             }
         }
     }
 
-    void ExecuteCurrentState()
+    IEnumerator DelayedCounterAttack()
+    {
+        inCounterAttackPattern = false;
+        yield return new WaitForSeconds(counterAttackDelay);
+        
+        if (currentEnemyState == FighterState.Idle && attackTimer <= 0)
+        {
+            currentEnemyState = FighterState.Attack;
+            StartCoroutine(AttackSequence());
+            attackTimer = attackCooldown;
+        }
+    }
+
+    void ExecuteCurrentStateVisuals()
     {
         switch (currentEnemyState)
         {
             case FighterState.Idle:
             case FighterState.IdleWindow:
-                ReturnToFixedPosition();
                 ReturnHandsToRest();
                 break;
 
             case FighterState.Blocking:
-                ReturnToFixedPosition();
                 RaiseHandsForBlock();
                 break;
 
             case FighterState.Dodge:
-                LeanBack();
+                ReturnHandsToRest();
                 break;
 
             case FighterState.Jump:
-                // Handled in coroutine
-                break;
-
             case FighterState.Attack:
-                // Handled in coroutine
-                break;
-
             case FighterState.BeenHit:
-                // Handled in TakeDamage
+                // Handled in coroutines
                 break;
         }
+    }
+
+    void ExecuteCurrentStateMovement()
+    {
+        switch (currentEnemyState)
+        {
+            case FighterState.Idle:
+            case FighterState.IdleWindow:
+            case FighterState.Blocking:
+                SetTargetPosition(fixedPosition);
+                break;
+
+            case FighterState.Dodge:
+                SetTargetPosition(fixedPosition + Vector3.back * dodgeBackDistance);
+                break;
+
+            case FighterState.Jump:
+            case FighterState.Attack:
+            case FighterState.BeenHit:
+                // Handled in coroutines
+                break;
+        }
+
+        if (hasTargetPosition && rb != null)
+        {
+            rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, 10f * Time.fixedDeltaTime));
+            if (Vector3.Distance(transform.position, targetPosition) < 0.05f)
+            {
+                hasTargetPosition = false;
+            }
+        }
+    }
+
+    void SetTargetPosition(Vector3 pos)
+    {
+        targetPosition = pos;
+        hasTargetPosition = true;
     }
 
     IEnumerator AttackSequence()
     {
         isAttacking = true;
         attackPhase = 0;
+        Debug.Log("[EnemyController] AttackSequence STARTED");
 
         // Phase 0: Windup (Tell)
         attackPhase = 0;
         SetAttackTellVisual(true);
         yield return new WaitForSeconds(attackWindupTime);
 
-        // Phase 1: Active Attack - Dynamic reach to player
+        // Phase 1: Active Attack - Alternate punches to player camera
         attackPhase = 1;
         SetAttackTellVisual(false);
+        Debug.Log("[EnemyController] Attack ACTIVE - enabling colliders");
+
+        // Alternate left/right
+        Transform punchHand = useLeftPunch ? leftHand : rightHand;
+        Collider punchCollider = useLeftPunch ? leftHandCollider : rightHandCollider;
+        ParticleSystem punchTrail = useLeftPunch ? leftPunchTrail : rightPunchTrail;
         
-        // Calculate dynamic extension to reach player
-        float distToPlayer = Vector3.Distance(transform.position, playerTarget.position);
-        float requiredExtension = Mathf.Clamp(distToPlayer - 0.5f, 0.4f, 1.8f);
-        
-        // Scale hands up for punch impact feel
+        useLeftPunch = !useLeftPunch; // Alternate for next attack
+
+        // Scale punch hand
         Vector3 punchScale = Vector3.one * punchScaleMultiplier;
-        if (leftHand) leftHand.localScale = punchScale;
-        if (rightHand) rightHand.localScale = punchScale;
+        if (punchHand) punchHand.localScale = punchScale;
+
+        // Extend punch hand toward player's camera
+        if (punchHand && playerController && playerController.headCamera)
+        {
+            Vector3 cameraPos = playerController.headCamera.position;
+            Vector3 handWorldPos = punchHand.position;
+            Vector3 direction = (cameraPos - handWorldPos).normalized;
+            float distance = Vector3.Distance(handWorldPos, cameraPos);
+            
+            // Convert world distance to local Z extension
+            Vector3 localForward = punchHand.parent.InverseTransformDirection(direction);
+            float localExtension = Mathf.Clamp(distance - 0.2f, 0.3f, 1.8f);
+            
+            ExtendHand(punchHand, localExtension);
+            Debug.Log($"[EnemyController] Punch extended {localExtension} units toward camera");
+        }
+        else
+        {
+            // Fallback
+            ExtendHand(punchHand, attackExtension);
+        }
+
+        EnableAttackCollider(punchCollider);
         
-        ExtendHands(requiredExtension);
-        EnableAttackColliders();
-        
-        // Play punch trail particles
-        if (leftPunchTrail) leftPunchTrail.Play();
-        if (rightPunchTrail) rightPunchTrail.Play();
-        
-        // Wait half the attack time then deal damage (mid-punch)
+        if (punchTrail) punchTrail.Play();
+
+        // Wait half attack time, then deal damage
         yield return new WaitForSeconds(attackActiveTime * 0.5f);
         
-        // Deal damage via OnAttackHit (called from coroutine since no animation events)
-        var player = playerTarget.GetComponent<PlayerController>();
-        OnAttackHit(player);
+        OnAttackHit(playerController);
         
         yield return new WaitForSeconds(attackActiveTime * 0.5f);
 
         // Phase 2: Recovery
         attackPhase = 2;
-        DisableAttackColliders();
+        DisableAttackCollider(punchCollider);
         
-        // Stop particles
-        if (leftPunchTrail) leftPunchTrail.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-        if (rightPunchTrail) rightPunchTrail.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        if (punchTrail) punchTrail.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         
-        RetractHands();
+        RetractHand(punchHand);
         
-        // Reset hand scale
-        if (leftHand) leftHand.localScale = Vector3.one;
-        if (rightHand) rightHand.localScale = Vector3.one;
+        if (punchHand) punchHand.localScale = Vector3.one;
         
         yield return new WaitForSeconds(attackRecoveryTime);
 
@@ -300,6 +410,26 @@ public class EnemyController : MonoBehaviour
         {
             handMaterial.EnableKeyword("_EMISSION");
             handMaterial.SetColor("_EmissionColor", active ? attackTellColor * 2f : Color.black);
+        }
+    }
+
+    void ExtendHand(Transform hand, float extension)
+    {
+        if (!hand) return;
+        int index = (hand == leftHand) ? 0 : 1;
+        if (index < originalHandPositions.Length)
+        {
+            hand.localPosition = originalHandPositions[index] + Vector3.forward * extension;
+        }
+    }
+
+    void RetractHand(Transform hand)
+    {
+        if (!hand) return;
+        int index = (hand == leftHand) ? 0 : 1;
+        if (index < originalHandPositions.Length)
+        {
+            hand.localPosition = originalHandPositions[index];
         }
     }
 
@@ -344,68 +474,45 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    void ReturnToFixedPosition()
+    void EnableAttackCollider(Collider col)
     {
-        transform.position = Vector3.Lerp(transform.position, fixedPosition, 15f * Time.deltaTime);
-    }
-
-    void LeanBack()
-    {
-        Vector3 targetPos = fixedPosition + Vector3.back * dodgeBackDistance;
-        transform.position = Vector3.Lerp(transform.position, targetPos, 10f * Time.deltaTime);
-    }
-
-    public void DoJump()
-    {
-        if (currentEnemyState != FighterState.Jump && currentEnemyState != FighterState.BeenHit)
+        if (col)
         {
-            currentEnemyState = FighterState.Jump;
-            stateTimer = 0.5f;
-            StartCoroutine(JumpSequence());
+            col.enabled = true;
+            Debug.Log($"[EnemyController] EnableAttackCollider: {col.name} = true");
         }
     }
 
-    IEnumerator JumpSequence()
+    void DisableAttackCollider(Collider col)
     {
-        float elapsed = 0f;
-        float duration = 0.3f;
-        Vector3 startPos = transform.position;
-        Vector3 peakPos = fixedPosition + Vector3.up * jumpHeight;
-
-        // Up
-        while (elapsed < duration)
+        if (col)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.position = Vector3.Lerp(startPos, peakPos, t);
-            yield return null;
+            col.enabled = false;
+            Debug.Log($"[EnemyController] DisableAttackCollider: {col.name} = false");
         }
-
-        // Down
-        elapsed = 0f;
-        startPos = transform.position;
-        Vector3 endPos = fixedPosition;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.position = Vector3.Lerp(startPos, endPos, t);
-            yield return null;
-        }
-
-        transform.position = fixedPosition;
     }
 
     void EnableAttackColliders()
     {
-        if (leftHandCollider) leftHandCollider.enabled = true;
-        if (rightHandCollider) rightHandCollider.enabled = true;
+        EnableAttackCollider(leftHandCollider);
+        EnableAttackCollider(rightHandCollider);
     }
 
     void DisableAttackColliders()
     {
-        if (leftHandCollider) leftHandCollider.enabled = false;
-        if (rightHandCollider) rightHandCollider.enabled = false;
+        DisableAttackCollider(leftHandCollider);
+        DisableAttackCollider(rightHandCollider);
+    }
+
+    public void OnAttackHit(PlayerController player)
+    {
+        Debug.Log($"[EnemyController] OnAttackHit called - isAttacking: {isAttacking}, attackPhase: {attackPhase}");
+        if (player != null && isAttacking && attackPhase == 1)
+        {
+            Vector3 hitDir = (player.transform.position - transform.position).normalized;
+            player.TakeDamage(15f, hitDir);
+            Debug.Log("[EnemyController] Dealt damage to player");
+        }
     }
 
     public void TakeDamage(float damage, Vector3 hitDirection)
@@ -465,17 +572,51 @@ public class EnemyController : MonoBehaviour
         {
             handMaterial.SetColor("_EmissionColor", Color.black);
         }
-        // Trigger win UI here later
     }
 
-    public void OnAttackHit(PlayerController player)
+    public void DoJump()
     {
-        Debug.Log($"[EnemyController] OnAttackHit called - isAttacking: {isAttacking}, attackPhase: {attackPhase}");
-        if (player != null && isAttacking && attackPhase == 1)
+        if (currentEnemyState != FighterState.Jump && currentEnemyState != FighterState.BeenHit)
         {
-            Vector3 hitDir = (player.transform.position - transform.position).normalized;
-            player.TakeDamage(15f, hitDir);
-            Debug.Log($"[EnemyController] Dealt damage to player");
+            currentEnemyState = FighterState.Jump;
+            stateTimer = 0.5f;
+            StartCoroutine(JumpSequence());
         }
+    }
+
+    IEnumerator JumpSequence()
+    {
+        float elapsed = 0f;
+        float duration = 0.3f;
+        Vector3 startPos = transform.position;
+        Vector3 peakPos = fixedPosition + Vector3.up * jumpHeight;
+
+        // Up
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            Vector3 newPos = Vector3.Lerp(startPos, peakPos, t);
+            if (rb != null) rb.MovePosition(newPos);
+            else transform.position = newPos;
+            yield return null;
+        }
+
+        // Down
+        elapsed = 0f;
+        startPos = transform.position;
+        Vector3 endPos = fixedPosition;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            Vector3 newPos = Vector3.Lerp(startPos, endPos, t);
+            if (rb != null) rb.MovePosition(newPos);
+            else transform.position = newPos;
+            yield return null;
+        }
+
+        if (rb != null) rb.MovePosition(fixedPosition);
+        else transform.position = fixedPosition;
     }
 }

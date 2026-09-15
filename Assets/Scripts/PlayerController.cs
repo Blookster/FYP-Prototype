@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Player Stats")]
     public float playerHP = 100f;
-    public float playerJumpHeight = 5f;
     public FighterState currentState;
 
     [Header("Tracking References")]
@@ -231,17 +230,49 @@ public class PlayerController : MonoBehaviour
         if (rightHand != null) rightHand.localScale = Vector3.one;
     }
 
+    private bool isJumping = false;
+
     void CheckGroundSlamJump()
     {
-        if (leftHand.position.y < 0.4f && rightHand.position.y < 0.4f)
+        if (!isJumping && leftHand.position.y < 0.4f && rightHand.position.y < 0.4f)
         {
-            if (rb != null)
-            {
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, playerJumpHeight, rb.linearVelocity.z);
-                currentState = FighterState.Dodge;
-                Debug.Log("Ground Slam Jump Triggered!");
-            }
+            isJumping = true;
+            currentState = FighterState.Dodge;
+            Debug.Log("Ground Slam Jump Triggered!");
+            StartCoroutine(JumpSequence());
         }
+    }
+
+    IEnumerator JumpSequence()
+    {
+        float elapsed = 0f;
+        float duration = 0.3f;
+        Vector3 startPos = transform.localPosition;
+        Vector3 peakPos = fixedLocalPosition + Vector3.up * jumpHeight;
+
+        // Up
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            transform.localPosition = Vector3.Lerp(startPos, peakPos, t);
+            yield return null;
+        }
+
+        // Down
+        elapsed = 0f;
+        startPos = transform.localPosition;
+        Vector3 endPos = fixedLocalPosition;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            transform.localPosition = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+
+        transform.localPosition = fixedLocalPosition;
+        isJumping = false;
     }
 
     void ReturnToFixedPosition()
