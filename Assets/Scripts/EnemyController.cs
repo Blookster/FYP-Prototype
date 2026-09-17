@@ -68,6 +68,9 @@ public class EnemyController : MonoBehaviour
     private Vector3 targetPosition;
     private bool hasTargetPosition = false;
 
+    [Header("Animator & Animations")]
+    public Animator animator;
+
     void Start()
     {
         fixedPosition = transform.position;
@@ -98,7 +101,13 @@ public class EnemyController : MonoBehaviour
         }
 
         Debug.Log("[EnemyController] Initialized. PlayerController found: " + (playerController != null));
+
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
+
 
     void Update()
     {
@@ -110,6 +119,12 @@ public class EnemyController : MonoBehaviour
 
         HandleStateTransitions();
         ExecuteCurrentStateVisuals();
+
+        if (animator == null) return;
+
+        // Pass states to Animator parameters (Ensure these parameters exist in your Animator Controller window)
+        animator.SetBool("IsBlocking", currentEnemyState == FighterState.Blocking);
+        animator.SetBool("IsDodge", currentEnemyState == FighterState.Dodge);
     }
 
     void FixedUpdate()
@@ -277,10 +292,15 @@ public class EnemyController : MonoBehaviour
         // Phase 0: Windup Tell (Yellow Flash via Visual Manager)
         attackPhase = 0;
         if (visualManager != null) visualManager.TriggerFlash(Color.yellow, attackWindupTime);
+
+        // Trigger Mixamo Attack Animation
+        if (animator != null) animator.SetTrigger("Attack");
+
         yield return new WaitForSeconds(attackWindupTime);
 
         // Phase 1: Active Attack
         attackPhase = 1;
+
         Transform punchHand = useLeftPunch ? leftHand : rightHand;
         Collider punchCollider = useLeftPunch ? leftHandCollider : rightHandCollider;
         useLeftPunch = !useLeftPunch;
@@ -368,12 +388,13 @@ public class EnemyController : MonoBehaviour
     }
 
     // Called externally by EnemyHitReceiver when player hits the enemy
-    public void HandleHit(float damageAmount, Vector3 hitDirection)
+    public void HandleHit(float damageAmount, Vector3 hitDirection, bool isHeadHit)
     {
         if (currentEnemyState == FighterState.Blocking)
         {
             healthSystem.TakeDamage(damageAmount * 0.2f);
             if (visualManager != null) visualManager.TriggerFlash(Color.blue, 0.1f);
+            // Play Block reaction animation if desired
         }
         else if (currentEnemyState == FighterState.Dodge)
         {
@@ -386,6 +407,22 @@ public class EnemyController : MonoBehaviour
             currentEnemyState = FighterState.BeenHit;
             stateTimer = 0.8f;
             inCounterAttackPattern = false;
+
+            // Trigger specific Mixamo Hit Animations based on where the player landed the punch!
+            if (animator != null)
+            {
+                if (isHeadHit)
+                {
+                    animator.SetTrigger("HitToHead");
+                    Debug.Log("[EnemyController] Playing Mixamo HitToHead Animation!");
+                }
+                else
+                {
+                    animator.SetTrigger("HitToBody");
+                    Debug.Log("[EnemyController] Playing Mixamo HitToBody Animation!");
+                }
+            }
+
             if (visualManager != null) visualManager.TriggerFlash(Color.red, 0.1f);
         }
     }

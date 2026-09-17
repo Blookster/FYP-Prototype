@@ -5,9 +5,12 @@ public class HitReceiver : MonoBehaviour
     private PlayerController playerController;
     private EnemyController enemyController;
 
+    [Header("Hitbox Classification (For Enemy Only)")]
+    [Tooltip("Check this if this collider is attached to the enemy's head/jaw hitbox.")]
+    public bool isHeadHitbox = false;
+
     void Start()
     {
-        // Automatically check which controller lives on this object or its parents
         playerController = GetComponentInParent<PlayerController>();
         enemyController = GetComponentInParent<EnemyController>();
 
@@ -19,18 +22,20 @@ public class HitReceiver : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Scenario A: This HitReceiver belongs to the Player, and an Enemy Hand touched it
+        // Scenario A: Player hit by Enemy
         if (playerController != null && other.CompareTag("EnemyHand"))
         {
             Debug.Log($"[HitReceiver] Player hit by {other.name}");
-            playerController.HandleHit(15f); // Pass default punch damage
+            playerController.HandleHit(15f);
         }
-        // Scenario B: This HitReceiver belongs to the Enemy, and a Player Hand touched it
+        // Scenario B: Enemy hit by Player
         else if (enemyController != null && other.CompareTag("PlayerHand"))
         {
-            Debug.Log($"[HitReceiver] Enemy hit by {other.name}");
+            Debug.Log($"[HitReceiver] Enemy hit by {other.name} (Head: {isHeadHitbox})");
             Vector3 hitDir = (enemyController.transform.position - other.transform.position).normalized;
-            enemyController.HandleHit(10f, hitDir); // Pass damage and hit direction
+
+            // Pass the damage, direction, and whether it was a headshot!
+            enemyController.HandleHit(10f, hitDir, isHeadHitbox);
         }
     }
 }
