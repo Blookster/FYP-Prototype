@@ -1,18 +1,15 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using System.Collections;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(HealthSystem))]
+[RequireComponent(typeof(PlayerInputHandler))]
+[RequireComponent(typeof(FighterVisualManager))]
+
+ // ^ Why it's coded like this: In Unity, scripts often crash with NullReferenceException if a required component is forgotten on the GameObject. These attributes tell Unity: "If you attach PlayerController to a capsule, automatically force-attach these other scripts too." It guarantees structural integrity before the game even presses Play.
+ 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Input Actions")]
-    public InputActionAsset inputActions;
-    private InputAction moveAction;
-    private InputAction attackAction;
-    private InputAction leftGripAction;
-    private InputAction rightGripAction;
-    private InputAction leftStickClickAction;
-    private InputAction rightStickClickAction;
-
     public enum FighterState
     {
         Idle,
@@ -22,8 +19,7 @@ public class PlayerController : MonoBehaviour
         BeenHit
     }
 
-    [Header("Player Stats")]
-    public float playerHP = 100f;
+    [Header("State")]
     public FighterState currentState;
 
     [Header("Tracking References")]
@@ -37,88 +33,46 @@ public class PlayerController : MonoBehaviour
     private float specialTimer;
     public float fistBumpDistanceThreshold = 0.15f;
 
-    [Header("Punch-Out Positioning")]
+    [Header("Punch-Out Positioning & Movement")]
     public float dodgeBackDistance = 0.8f;
     public float jumpHeight = 1.5f;
     public float blockHandRaiseY = 0.35f;
-
-    [Header("Combat Settings")]
     public float attackExtensionThreshold = 0.4f;
-    private bool isBlockingInput = false;
-    private bool isDodgeInput = false;
 
-    [Header("UI")]
-    public HealthBarUI healthBarUI;
-
-    [Header("Hit Feedback")]
-    public Material bodyMaterial;
-    public Color hitFlashColor = Color.red;
-    public float hitFlashDuration = 0.15f;
-    public float hitPauseDuration = 0.05f;
-
+    // Component References (Cached automatically)
+    private PlayerInputHandler inputHandler;
+    private HealthSystem healthSystem;
+    private FighterVisualManager visualManager;
     private Rigidbody rb;
+
     private Transform xrOrigin;
     private Vector3 fixedLocalPosition;
     private Vector3[] originalHandPositions;
     private float originalHandY;
+    private bool isJumping = false;
 
     void Start()
     {
         currentState = FighterState.Idle;
+
+        // Cache all modular component references
         rb = GetComponent<Rigidbody>();
+        inputHandler = GetComponent<PlayerInputHandler>();
+        healthSystem = GetComponent<HealthSystem>();
+        visualManager = GetComponent<FighterVisualManager>();
+
         xrOrigin = transform.parent;
         fixedLocalPosition = transform.localPosition;
+
         originalHandPositions = new Vector3[2];
         if (leftHand) originalHandPositions[0] = leftHand.localPosition;
         if (rightHand) originalHandPositions[1] = rightHand.localPosition;
         originalHandY = leftHand ? leftHand.localPosition.y : 0f;
-
-        SetupInputActions();
-
-        if (healthBarUI != null)
-        {
-            healthBarUI.Initialize(playerHP, headCamera);
-        }
-    }
-
-    void SetupInputActions()
-    {
-        if (inputActions != null)
-        {
-            var playerMap = inputActions.FindActionMap("Player");
-            if (playerMap != null)
-            {
-                moveAction = playerMap.FindAction("Move");
-                attackAction = playerMap.FindAction("Attack");
-                leftGripAction = playerMap.FindAction("GripLeft");
-                rightGripAction = playerMap.FindAction("GripRight");
-                leftStickClickAction = playerMap.FindAction("StickClickLeft");
-                rightStickClickAction = playerMap.FindAction("StickClickRight");
-
-                moveAction?.Enable();
-                attackAction?.Enable();
-                leftGripAction?.Enable();
-                rightGripAction?.Enable();
-                leftStickClickAction?.Enable();
-                rightStickClickAction?.Enable();
-            }
-        }
-    }
-
-    void OnDestroy()
-    {
-        moveAction?.Disable();
-        attackAction?.Disable();
-        leftGripAction?.Disable();
-        rightGripAction?.Disable();
-        leftStickClickAction?.Disable();
-        rightStickClickAction?.Disable();
     }
 
     void Update()
     {
-        UpdatePlayerInputs();
-
+        // State Machine Logic Loop
         switch (currentState)
         {
             case FighterState.Idle:
@@ -142,7 +96,7 @@ public class PlayerController : MonoBehaviour
             case FighterState.Blocking:
                 ReturnToFixedPosition();
                 RaiseHandsForBlock();
-                if (!isBlockingInput)
+                if (!inputHandler.IsBlocking)
                 {
                     currentState = FighterState.Idle;
                 }
@@ -150,16 +104,21 @@ public class PlayerController : MonoBehaviour
 
             case FighterState.Dodge:
                 LeanBack();
-                if (!isDodgeInput)
+                if (!inputHandler.IsDodge)
                 {
                     currentState = FighterState.Idle;
                 }
                 break;
 
             case FighterState.BeenHit:
+                // Handled via external damage triggers
                 break;
         }
 
+        // Check Input-driven defensive states
+        CheckInputStates();
+
+        // Handle special weapon timer
         if (isSpecialActive)
         {
             specialTimer -= Time.deltaTime;
@@ -173,22 +132,15 @@ public class PlayerController : MonoBehaviour
         CheckGroundSlamJump();
     }
 
-    void UpdatePlayerInputs()
+    void CheckInputStates()
     {
-        bool bothGripsHeld = leftGripAction != null && rightGripAction != null &&
-                            leftGripAction.IsPressed() && rightGripAction.IsPressed();
+        if (currentState == FighterState.BeenHit) return;
 
-        bool stickClickPressed = (leftStickClickAction != null && leftStickClickAction.WasPressedThisFrame()) ||
-                                 (rightStickClickAction != null && rightStickClickAction.WasPressedThisFrame());
-
-        isBlockingInput = bothGripsHeld;
-        isDodgeInput = stickClickPressed;
-
-        if (isBlockingInput && currentState != FighterState.BeenHit)
+        if (inputHandler.IsBlocking)
         {
             currentState = FighterState.Blocking;
         }
-        else if (isDodgeInput && currentState != FighterState.BeenHit)
+        else if (inputHandler.IsDodge)
         {
             currentState = FighterState.Dodge;
         }
@@ -196,6 +148,7 @@ public class PlayerController : MonoBehaviour
 
     bool CheckArmExtension()
     {
+        if (!leftHand || !rightHand || !headCamera) return false;
         float leftZ = leftHand.position.z - headCamera.position.z;
         float rightZ = rightHand.position.z - headCamera.position.z;
         return (leftZ > attackExtensionThreshold || rightZ > attackExtensionThreshold);
@@ -217,7 +170,7 @@ public class PlayerController : MonoBehaviour
     {
         isSpecialActive = true;
         specialTimer = specialDuration;
-        Debug.Log("Special Power Activated! Fists are super-sized/powered.");
+        Debug.Log("Special Power Activated! Fists are super-sized.");
         if (leftHand != null) leftHand.localScale = Vector3.one * 1.5f;
         if (rightHand != null) rightHand.localScale = Vector3.one * 1.5f;
     }
@@ -230,15 +183,12 @@ public class PlayerController : MonoBehaviour
         if (rightHand != null) rightHand.localScale = Vector3.one;
     }
 
-    private bool isJumping = false;
-
     void CheckGroundSlamJump()
     {
         if (!isJumping && leftHand.position.y < 0.4f && rightHand.position.y < 0.4f)
         {
             isJumping = true;
             currentState = FighterState.Dodge;
-            Debug.Log("Ground Slam Jump Triggered!");
             StartCoroutine(JumpSequence());
         }
     }
@@ -250,24 +200,19 @@ public class PlayerController : MonoBehaviour
         Vector3 startPos = transform.localPosition;
         Vector3 peakPos = fixedLocalPosition + Vector3.up * jumpHeight;
 
-        // Up
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.localPosition = Vector3.Lerp(startPos, peakPos, t);
+            transform.localPosition = Vector3.Lerp(startPos, peakPos, elapsed / duration);
             yield return null;
         }
 
-        // Down
         elapsed = 0f;
         startPos = transform.localPosition;
-        Vector3 endPos = fixedLocalPosition;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.localPosition = Vector3.Lerp(startPos, endPos, t);
+            transform.localPosition = Vector3.Lerp(startPos, fixedLocalPosition, elapsed / duration);
             yield return null;
         }
 
@@ -282,14 +227,8 @@ public class PlayerController : MonoBehaviour
 
     void ReturnHandsToRest()
     {
-        if (leftHand)
-        {
-            leftHand.localPosition = Vector3.Lerp(leftHand.localPosition, originalHandPositions[0], 10f * Time.deltaTime);
-        }
-        if (rightHand)
-        {
-            rightHand.localPosition = Vector3.Lerp(rightHand.localPosition, originalHandPositions[1], 10f * Time.deltaTime);
-        }
+        if (leftHand) leftHand.localPosition = Vector3.Lerp(leftHand.localPosition, originalHandPositions[0], 10f * Time.deltaTime);
+        if (rightHand) rightHand.localPosition = Vector3.Lerp(rightHand.localPosition, originalHandPositions[1], 10f * Time.deltaTime);
     }
 
     void RaiseHandsForBlock()
@@ -315,56 +254,23 @@ public class PlayerController : MonoBehaviour
         transform.localPosition = Vector3.Lerp(transform.localPosition, targetLocalPos, 10f * Time.deltaTime);
     }
 
-    public void TakeDamage(float damageAmount, Vector3 hitDirection = default)
+    // Called externally by the HitReceiver script when an enemy fist hits the player
+    public void HandleHit(float damageAmount)
     {
-        Debug.Log($"[PlayerController] TakeDamage called - State: {currentState}, Damage: {damageAmount}, HP before: {playerHP}");
         if (currentState == FighterState.Blocking)
         {
-            Debug.Log("[PlayerController] Attack blocked! Reduced damage taken.");
-            playerHP -= (damageAmount * 0.2f);
+            Debug.Log("Attack blocked! Reduced damage taken.");
+            healthSystem.TakeDamage(damageAmount * 0.2f);
         }
         else if (currentState == FighterState.Dodge)
         {
-            Debug.Log("[PlayerController] Dodged successfully! Zero damage.");
-            return;
+            Debug.Log("Dodged successfully! Zero damage.");
         }
         else
         {
             currentState = FighterState.BeenHit;
-            playerHP -= damageAmount;
-            Debug.Log($"[PlayerController] Hit! Player HP remaining: {playerHP}");
-
-            // Visual feedback
-            StartCoroutine(HitFlashRoutine());
-            StartCoroutine(HitPauseRoutine());
-
-            if (playerHP <= 0)
-            {
-                Debug.Log("[PlayerController] Player Knocked Out (KO)! Enemy Wins!");
-            }
+            healthSystem.TakeDamage(damageAmount);
+            if (visualManager != null) visualManager.TriggerFlash(Color.red, 0.15f);
         }
-
-        if (healthBarUI != null)
-        {
-            healthBarUI.SetHealth(playerHP);
-        }
-    }
-
-    IEnumerator HitFlashRoutine()
-    {
-        if (bodyMaterial != null)
-        {
-            bodyMaterial.EnableKeyword("_EMISSION");
-            bodyMaterial.SetColor("_EmissionColor", hitFlashColor * 3f);
-            yield return new WaitForSeconds(hitFlashDuration);
-            bodyMaterial.SetColor("_EmissionColor", Color.black);
-        }
-    }
-
-    IEnumerator HitPauseRoutine()
-    {
-        Time.timeScale = 0.02f;
-        yield return new WaitForSecondsRealtime(hitPauseDuration);
-        Time.timeScale = 1f;
     }
 }
