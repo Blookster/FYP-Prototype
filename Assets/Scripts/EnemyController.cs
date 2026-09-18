@@ -293,8 +293,15 @@ public class EnemyController : MonoBehaviour
         attackPhase = 0;
         if (visualManager != null) visualManager.TriggerFlash(Color.yellow, attackWindupTime);
 
-        // Trigger Mixamo Attack Animation
-        if (animator != null) animator.SetTrigger("Attack");
+        // Randomly pick one of the 5 punch animations!
+        string[] attackTriggers = { "Jab", "RightCross", "LeftHook", "RightHook", "LeftUppercut" };
+        string chosenAttack = attackTriggers[Random.Range(0, attackTriggers.Length)];
+
+        if (animator != null)
+        {
+            animator.SetTrigger(chosenAttack);
+            Debug.Log($"[EnemyController] Throwing punch: {chosenAttack}");
+        }
 
         yield return new WaitForSeconds(attackWindupTime);
 
@@ -413,17 +420,21 @@ public class EnemyController : MonoBehaviour
             {
                 if (isHeadHit)
                 {
-                    animator.SetTrigger("HitToHead");
-                    Debug.Log("[EnemyController] Playing Mixamo HitToHead Animation!");
+                    float hitSide = Vector3.Dot(transform.right, hitDirection);
+                    if (hitSide > 0)
+                    {
+                        animator.SetTrigger("HitHeadLeft");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("HitHeadRight");
+                    }
                 }
                 else
                 {
-                    animator.SetTrigger("HitToBody");
-                    Debug.Log("[EnemyController] Playing Mixamo HitToBody Animation!");
+                    animator.SetTrigger("StomachHit");
                 }
             }
-
-            if (visualManager != null) visualManager.TriggerFlash(Color.red, 0.1f);
         }
     }
 }
