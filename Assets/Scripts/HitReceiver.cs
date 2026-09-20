@@ -27,6 +27,9 @@ public class HitReceiver : MonoBehaviour
         {
             Debug.Log($"[HitReceiver] Player hit by {other.name}");
             playerController.HandleHit(15f);
+
+            // ---> ADD THIS LINE FOR DEBUG UI <---
+            EnemyDebugUI.LogHit("Player Hit by Enemy!");
         }
         // Scenario B: Enemy hit by Player
         else if (enemyController != null && other.CompareTag("PlayerHand"))
@@ -36,6 +39,10 @@ public class HitReceiver : MonoBehaviour
 
             // Pass the damage, direction, and whether it was a headshot!
             enemyController.HandleHit(10f, hitDir, isHeadHitbox);
+
+            // ---> ADD THESE LINES FOR DEBUG UI <---
+            string hitLocation = isHeadHitbox ? "Head Hit Landed!" : "Stomach/Body Hit Landed!";
+            EnemyDebugUI.LogHit(hitLocation);
         }
     }
 }
