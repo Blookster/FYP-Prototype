@@ -42,6 +42,11 @@ public class EnemyController : MonoBehaviour
     [Header("Blocking Visual")]
     public float blockHandRaiseY = 0.35f;
 
+    [Header("Health Settings")]
+    public float maxHP = 100f;
+    public float currentHP;
+    public UnityEngine.UI.Slider healthSlider;
+
     [Header("References")]
     public Transform playerTarget;
     public Transform leftHand;
@@ -100,6 +105,13 @@ public class EnemyController : MonoBehaviour
             if (playerController != null) playerTarget = playerController.transform;
         }
 
+        currentHP = maxHP;
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHP;
+            healthSlider.value = currentHP;
+        }
+
         Debug.Log("[EnemyController] Initialized. PlayerController found: " + (playerController != null));
 
         if (animator == null)
@@ -111,7 +123,15 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        if (playerTarget == null || playerController == null) return;
+        if (playerController.currentState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
+        {
+            if (Random.value < 0.4f) // 40% chance to dodge when you throw a punch
+            {
+                currentEnemyState = FighterState.Dodge;
+                stateTimer = dodgeDuration;
+                return;
+            }
+        }
 
         decisionTimer -= Time.deltaTime;
         attackTimer -= Time.deltaTime;
@@ -171,20 +191,15 @@ public class EnemyController : MonoBehaviour
 
     void MakeDecision(float dist)
     {
-        if (playerController.currentState == PlayerController.FighterState.Attack)
+        if (playerController.currentState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
         {
-            if (Random.value < 0.2f)
+            if (Random.value < 0.5f) // 50% chance to step back and dodge when you punch
             {
                 currentEnemyState = FighterState.Dodge;
                 stateTimer = dodgeDuration;
+                animator.SetBool("IsDodge", true);
+                return;
             }
-            else
-            {
-                currentEnemyState = FighterState.Blocking;
-                stateTimer = blockDuration;
-                inCounterAttackPattern = true;
-            }
-            return;
         }
 
         if (inCounterAttackPattern && playerController.currentState != PlayerController.FighterState.Attack && attackTimer <= 0)
@@ -395,46 +410,68 @@ public class EnemyController : MonoBehaviour
     }
 
     // Called externally by EnemyHitReceiver when player hits the enemy
-    public void HandleHit(float damageAmount, Vector3 hitDirection, bool isHeadHit)
+    public void HandleHit(float damage, Vector3 hitDir, bool isHeadHit)
     {
-        if (currentEnemyState == FighterState.Blocking)
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // 1. DODGE CHECK: If enemy is dodging, they are invulnerable. Hits miss!
+        if (stateInfo.IsName("Dodge"))
         {
-            healthSystem.TakeDamage(damageAmount * 0.2f);
-            if (visualManager != null) visualManager.TriggerFlash(Color.blue, 0.1f);
-            // Play Block reaction animation if desired
-        }
-        else if (currentEnemyState == FighterState.Dodge)
-        {
-            if (visualManager != null) visualManager.TriggerFlash(Color.green, 0.1f);
+            Debug.Log("[Combat] Hit missed! Enemy is dodging.");
+            EnemyDebugUI.enemyStateText = "Dodging (Invulnerable)";
+            EnemyDebugUI.lastHitResultText = "Missed (Dodge)";
             return;
+        }
+
+        // 2. STOP CURRENT ATTACK COROUTINE: Interrupt whatever the enemy was doing!
+        StopAllCoroutines();
+        isAttacking = false;
+
+        // Apply Damage via HealthSystem
+        if (healthSystem != null)
+        {
+            healthSystem.TakeDamage(damage);
+        }
+
+        // Force state machine into BeenHit
+        currentEnemyState = FighterState.BeenHit;
+        stateTimer = 0.5f; // Hit stun duration
+
+        // Update Health Bar Slider Value
+        if (healthSlider != null)
+        {
+            healthSlider.value -= damage;
+            healthSlider.value = Mathf.Clamp(healthSlider.value, 0, healthSlider.maxValue);
+        }
+
+        // Trigger Animations Instantly and Update Debug UI
+        if (isHeadHit)
+        {
+            if (Random.value > 0.5f)
+            {
+                animator.SetTrigger("HeadHitRight");
+                EnemyDebugUI.lastHitResultText = $"Head Hit (Right) (-{damage} HP)";
+            }
+            else
+            {
+                animator.SetTrigger("HeadHitLeft");
+                EnemyDebugUI.lastHitResultText = $"Head Hit (Left) (-{damage} HP)";
+            }
         }
         else
         {
-            healthSystem.TakeDamage(damageAmount);
-            currentEnemyState = FighterState.BeenHit;
-            stateTimer = 0.8f;
-            inCounterAttackPattern = false;
+            animator.SetTrigger("StomachHit");
+            EnemyDebugUI.lastHitResultText = $"Stomach Hit (-{damage} HP)";
+        }
 
-            // Trigger specific Mixamo Hit Animations based on where the player landed the punch!
-            if (animator != null)
-            {
-                if (isHeadHit)
-                {
-                    float hitSide = Vector3.Dot(transform.right, hitDirection);
-                    if (hitSide > 0)
-                    {
-                        animator.SetTrigger("HitHeadLeft");
-                    }
-                    else
-                    {
-                        animator.SetTrigger("HitHeadRight");
-                    }
-                }
-                else
-                {
-                    animator.SetTrigger("StomachHit");
-                }
-            }
+        EnemyDebugUI.enemyStateText = "Been Hit!";
+        EnemyDebugUI.currentHP = healthSlider != null ? healthSlider.value : currentHP;
+
+        // Check for KO
+        if (healthSlider != null && healthSlider.value <= 0)
+        {
+            animator.SetTrigger("KO");
+            EnemyDebugUI.enemyStateText = "KO'd";
         }
     }
 }
