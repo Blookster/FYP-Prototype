@@ -175,6 +175,7 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
+        // The function of all State but Idle, BeenHit and Attack
         // Timer expirations for defense/windows
         if ((currentEnemyState == FighterState.Blocking || currentEnemyState == FighterState.Dodge || currentEnemyState == FighterState.IdleWindow || currentEnemyState == FighterState.Jump) && stateTimer <= 0)
         {
