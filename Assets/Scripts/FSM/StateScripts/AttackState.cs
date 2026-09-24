@@ -5,7 +5,7 @@ using Unity.VisualScripting.FullSerializer;
 public class AttackState : IState
 {
     private FSM fsm;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public AttackState(FSM fsm)
     {

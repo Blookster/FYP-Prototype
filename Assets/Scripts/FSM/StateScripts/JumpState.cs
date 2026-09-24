@@ -3,7 +3,7 @@ using UnityEngine;
 public class JumpState : IState
 {
     private FSM enemyController;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public JumpState(FSM enemyController)
     {

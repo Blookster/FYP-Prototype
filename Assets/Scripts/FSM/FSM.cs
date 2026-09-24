@@ -16,69 +16,13 @@ public enum FighterState
         IdleWindow
     }
 
-[Serializable]
-// Enemy Parameters
-public class Parameter
-{
-    #region 
-    [Header("Punch-Out Positioning")]
-    public float attackExtension = 0.6f;
-    // public float dodgeBackDistance = 0.8f;
-    // public float jumpHeight = 1.5f;
-
-    [Header("Attack Timing")]
-    public float attackWindupTime = 0.5f;
-    public float attackActiveTime = 0.25f;
-    public float attackRecoveryTime = 0.4f;
-    public float counterAttackDelay = 0.5f;
-
-    [Header("AI Pattern Settings")]
-    public float decisionInterval = 3f;
-    public float attackCooldown = 2f;
-    public float blockDuration = 1f;
-    public float dodgeDuration = 0.6f;
-    public float idleWindowDuration = 3f;
-    public float attackRange = 2.5f;
-
-    // [Header("Blocking Visual")]
-    public float blockHandRaiseY = 0.35f;
-
-    [Header("References")]
-    public Transform playerTarget;
-    public Transform leftHand;
-    public Transform rightHand;
-    public Collider leftHandCollider;
-    public Collider rightHandCollider;
-
-    // // Modular Component References
-    // private HealthSystem healthSystem;
-    public FighterVisualManager visualManager;
-    // private Rigidbody rb;
-    public PlayerController playerController;
-
-    public Vector3 fixedPosition;
-    public Vector3[] originalHandPositions;
-    public float originalHandY;
-    public float decisionTimer;
-    public float attackTimer;
-    public float stateTimer;
-    public bool isAttacking = false;
-    public int attackPhase = 0;
-    public bool inCounterAttackPattern = false;
-    public bool useLeftPunch = true;
-    // private Vector3 targetPosition;
-    // private bool hasTargetPosition = false;
-
-    [Header("Animator & Animations")]
-    public Animator animator;
-    #endregion
-
-}
-
 public class FSM : MonoBehaviour
 {
     // Declarpation of State Dictionary
     private Dictionary<FighterState, IState> states = new Dictionary<FighterState, IState>();
+
+    // Declarpation of Timer Dictionary
+    private Dictionary<FighterState, float> timers = new Dictionary<FighterState, float>();
     
     // Declarpation of currentState
     [SerializeField]
@@ -86,11 +30,11 @@ public class FSM : MonoBehaviour
     public FighterState currentEnemyState;
     
     // Declarpation of Parameter
-    public Parameter parameter;
+    public EnemyParameter parameter;
 
         void Start()
     {
-        // Initalization Dictionary 
+        // Initalization of State Dictionary 
         #region 
         states.Add(FighterState.Idle, new IdleState(this));
         states.Add(FighterState.Attack, new AttackState(this));
@@ -101,6 +45,20 @@ public class FSM : MonoBehaviour
         states.Add(FighterState.IdleWindow, new IdleWindowState(this));
         #endregion
 
+        // Initalization of timer Dictionary 
+        #region 
+        timers.Add(FighterState.Attack, parameter.attackCooldown);
+        timers.Add(FighterState.Blocking, parameter.blockDuration);
+        timers.Add(FighterState.Dodge, parameter.dodgeDuration);
+        #endregion
+
+        // Initalization of Components
+        parameter = gameObject.GetComponent<EnemyParameter>();
+        parameter.rb = GetComponent<Rigidbody>();
+        parameter.healthSystem = GetComponent<HealthSystem>();
+        parameter.visualManager = GetComponent<FighterVisualManager>();
+
+        // Initalization of Position
         parameter.fixedPosition = transform.position;
         parameter.originalHandPositions = new Vector3[2];
         if (parameter.leftHand) parameter.originalHandPositions[0] = parameter.leftHand.localPosition;
@@ -120,12 +78,12 @@ public class FSM : MonoBehaviour
             }
         }
     
-       //TransitionState(FighterState.Idle); 
+       TransitionState(FighterState.Idle);
 
        // TransitionState for debug
        #region 
        //TransitionState(FighterState.Attack);
-       TransitionState(FighterState.Blocking);
+       //TransitionState(FighterState.Blocking);
        #endregion
     }
 
@@ -133,6 +91,7 @@ public class FSM : MonoBehaviour
     {
         float dist = Vector3.Distance(transform.position, parameter.playerTarget.position);
         currentState.OnUpdate(dist);
+        ExecuteCurrentStateVisuals();
 
         // Timer count down
         parameter.stateTimer -= Time.deltaTime;
@@ -144,6 +103,11 @@ public class FSM : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        ExecuteCurrentStateMovement();
+    }
+
     public void TransitionState(FighterState type)
     {
         if (currentState != null)
@@ -153,6 +117,24 @@ public class FSM : MonoBehaviour
         currentEnemyState = type;
         currentState = states[type];
         currentState.OnEnter();
+
+        switch (type)
+        {
+            case FighterState.Attack:
+            case FighterState.Blocking:
+            case FighterState.Dodge:
+            AutoSetTimer(type);
+            break;
+            
+            default:
+            return;
+        }
+        
+    }
+
+    public void AutoSetTimer(FighterState type)
+    {
+        parameter.stateTimer = timers[type];
     }
 
     IEnumerator DelayedCounterAttack()
@@ -184,6 +166,81 @@ public class FSM : MonoBehaviour
             case FighterState.BeenHit:
             return;
         }
+    }
+
+    public void ExecuteCurrentStateVisuals()
+    {
+        switch (currentEnemyState)
+        {
+            case FighterState.Idle:
+            case FighterState.IdleWindow:
+            case FighterState.Dodge:
+                ReturnHandsToRest();
+                break;
+            case FighterState.Blocking:
+                RaiseHandsForBlock();
+                break;
+            
+        }
+    }
+
+    void ReturnHandsToRest()
+    {
+        if (parameter.leftHand)
+        {
+            parameter.leftHand.localPosition = Vector3.Lerp(parameter.leftHand.localPosition, parameter.originalHandPositions[0], 10f * Time.deltaTime);
+        }
+        if (parameter.rightHand)
+        {
+            parameter.rightHand.localPosition = Vector3.Lerp(parameter.rightHand.localPosition, parameter.originalHandPositions[1], 10f * Time.deltaTime);
+        }
+    }
+
+    void RaiseHandsForBlock()
+    {
+        float targetY = parameter.originalHandY + parameter.blockHandRaiseY;
+        if (parameter.leftHand)
+        {
+            Vector3 pos = parameter.leftHand.localPosition;
+            pos.y = Mathf.Lerp(pos.y, targetY, 10f * Time.deltaTime);
+            parameter.leftHand.localPosition = pos;
+        }
+        if (parameter.rightHand)
+        {
+            Vector3 pos = parameter.rightHand.localPosition;
+            pos.y = Mathf.Lerp(pos.y, targetY, 10f * Time.deltaTime);
+            parameter.rightHand.localPosition = pos;
+        }
+    }
+
+    void ExecuteCurrentStateMovement()
+    {
+        switch (currentEnemyState)
+        {
+            case FighterState.Idle:
+            case FighterState.IdleWindow:
+            case FighterState.Blocking:
+                SetTargetPosition(parameter.fixedPosition);
+                break;
+            case FighterState.Dodge:
+                SetTargetPosition(parameter.fixedPosition + Vector3.back * parameter.dodgeBackDistance);
+                break;
+        }
+
+        if (parameter.hasTargetPosition && parameter.rb != null)
+        {
+            parameter.rb.MovePosition(Vector3.MoveTowards(transform.position, parameter.targetPosition, 10f * Time.fixedDeltaTime));
+            if (Vector3.Distance(transform.position, parameter.targetPosition) < 0.05f)
+            {
+                parameter.hasTargetPosition = false;
+            }
+        }
+    }
+
+    void SetTargetPosition(Vector3 pos)
+    {
+        parameter.targetPosition = pos;
+        parameter.hasTargetPosition = true;
     }
 
 }

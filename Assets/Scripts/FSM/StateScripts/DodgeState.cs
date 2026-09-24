@@ -3,7 +3,7 @@ using UnityEngine;
 public class DodgeState : IState
 {
     private FSM fsm;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public DodgeState(FSM fsm)
     {
@@ -13,7 +13,7 @@ public class DodgeState : IState
 
     public void OnEnter()
     {
-        parameter.animator.SetBool("Dodge", true);
+        parameter.animator.SetBool("IsDodge", true);
 
         // Debug Enter DodgeState
         #region 
@@ -30,6 +30,6 @@ public class DodgeState : IState
 
     public void OnExit()
     {
-        parameter.animator.SetBool("Dodge", false);
+        parameter.animator.SetBool("IsDodge", false);
     }
 }

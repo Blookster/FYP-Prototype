@@ -1466,6 +1466,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6eb17b3344a918c458e6a4b55715f13f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1579327861}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6eb17b3344a918c458e6a4b55715f13f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1579327862}
   m_SourcePrefab: {fileID: 100100000, guid: 6eb17b3344a918c458e6a4b55715f13f, type: 3}
 --- !u!1 &1579327854 stripped
 GameObject:
@@ -1549,37 +1552,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FSM
   currentEnemyState: 0
-  parameter:
-    attackExtension: 0.6
-    attackWindupTime: 0.5
-    attackActiveTime: 0.25
-    attackRecoveryTime: 0.4
-    counterAttackDelay: 0.5
-    decisionInterval: 3
-    attackCooldown: 2
-    blockDuration: 1
-    dodgeDuration: 0.6
-    idleWindowDuration: 3
-    attackRange: 2.5
-    blockHandRaiseY: 0.35
-    playerTarget: {fileID: 120328642}
-    leftHand: {fileID: 1770050102}
-    rightHand: {fileID: 524993427}
-    leftHandCollider: {fileID: 1770050103}
-    rightHandCollider: {fileID: 524993428}
-    visualManager: {fileID: 1579327856}
-    playerController: {fileID: 1777611854}
-    fixedPosition: {x: 0, y: 0, z: 0}
-    originalHandPositions: []
-    originalHandY: 0
-    decisionTimer: 0
-    attackTimer: 0
-    stateTimer: 0
-    isAttacking: 0
-    attackPhase: 0
-    inCounterAttackPattern: 0
-    useLeftPunch: 1
-    animator: {fileID: 1579327855}
+  parameter: {fileID: 1579327862}
+--- !u!114 &1579327862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579327854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48372e3f9faa44f2296664bd2b4aeb40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyParameter
+  attackExtension: 0.6
+  dodgeBackDistance: 0.8
+  attackWindupTime: 0.5
+  attackActiveTime: 0.25
+  attackRecoveryTime: 0.4
+  counterAttackDelay: 0.5
+  decisionInterval: 3
+  attackCooldown: 2
+  blockDuration: 1
+  dodgeDuration: 0.6
+  idleWindowDuration: 3
+  attackRange: 2.5
+  blockHandRaiseY: 0.35
+  playerTarget: {fileID: 1777611853}
+  leftHand: {fileID: 1770050102}
+  rightHand: {fileID: 524993427}
+  leftHandCollider: {fileID: 1770050103}
+  rightHandCollider: {fileID: 524993428}
+  healthSystem: {fileID: 1579327857}
+  visualManager: {fileID: 1579327856}
+  rb: {fileID: 1579327858}
+  playerController: {fileID: 1777611854}
+  fixedPosition: {x: 0, y: 0, z: 0}
+  originalHandPositions: []
+  originalHandY: 0
+  decisionTimer: 0
+  attackTimer: 0
+  stateTimer: 0
+  isAttacking: 0
+  attackPhase: 0
+  inCounterAttackPattern: 0
+  useLeftPunch: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  hasTargetPosition: 0
+  animator: {fileID: 1579327855}
 --- !u!1 &1585553127
 GameObject:
   m_ObjectHideFlags: 0

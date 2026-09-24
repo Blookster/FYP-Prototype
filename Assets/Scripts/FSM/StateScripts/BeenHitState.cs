@@ -3,7 +3,7 @@ using UnityEngine;
 public class BeenHitState : IState
 {
     private FSM enemyController;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public BeenHitState(FSM enemyController)
     {

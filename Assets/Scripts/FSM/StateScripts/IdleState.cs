@@ -4,7 +4,7 @@ using System;
 public class IdleState : IState
 {
     private FSM fsm;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public IdleState(FSM fsm)
     {
@@ -14,7 +14,7 @@ public class IdleState : IState
 
     public void OnEnter()
     {
-        parameter.animator.Play("Idle");
+        //parameter.animator.Play("Idle");
 
         // Debug Enter IdleState
         #region 
@@ -51,7 +51,7 @@ public class IdleState : IState
             if (UnityEngine.Random.value < 0.5f) // 50% chance to step back and dodge when you punch
             {
                 fsm.TransitionState(FighterState.Dodge);
-                parameter.stateTimer = parameter.dodgeDuration;
+                //parameter.stateTimer = parameter.dodgeDuration;
                 
                 return;
             }
@@ -65,36 +65,31 @@ public class IdleState : IState
                 {
                     
                     fsm.TransitionState(FighterState.Attack);
-
-                    parameter.attackTimer = parameter.attackCooldown;
+                    //parameter.attackTimer = parameter.attackCooldown;
                     
                 }
                 else if (rand < 0.8f)
                 {
                     
                     fsm.TransitionState(FighterState.Blocking);
-                    parameter.stateTimer = parameter.blockDuration;
+                    //parameter.stateTimer = parameter.blockDuration;
                     
                 }
                 else
                 {
                     
                     fsm.TransitionState(FighterState.Dodge);
-                    parameter.stateTimer = parameter.dodgeDuration;
+                    //parameter.stateTimer = parameter.dodgeDuration;
 
                 }
             }
 
             else
             {
-                return;
-
-                // Old version
-                #region 
-                // fsm.currentEnemyState = (rand < 0.6f) ? FighterState.Idle : (rand < 0.8f ? FighterState.Blocking : FighterState.Dodge);
-                // if (fsm.currentEnemyState == FighterState.Blocking) parameter.stateTimer = parameter.blockDuration;
-                // if (fsm.currentEnemyState == FighterState.Dodge) parameter.stateTimer = parameter.dodgeDuration;
-                #endregion
+                fsm.currentEnemyState = (rand < 0.6f) ? FighterState.Idle : (rand < 0.8f ? FighterState.Blocking : FighterState.Dodge);
+                if (fsm.currentEnemyState == FighterState.Blocking) fsm.AutoSetTimer(fsm.currentEnemyState);
+                if (fsm.currentEnemyState == FighterState.Dodge) fsm.AutoSetTimer(fsm.currentEnemyState);
+                
             }
             
         }

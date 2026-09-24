@@ -3,7 +3,7 @@ using UnityEngine;
 public class IdleWindowState : IState
 {
     private FSM enemyController;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public IdleWindowState(FSM enemyController)
     {

@@ -3,7 +3,7 @@ using UnityEngine;
 public class BlockingState : IState
 {
     private FSM fsm;
-    private Parameter parameter;
+    private EnemyParameter parameter;
 
     public BlockingState(FSM fsm)
     {
@@ -13,11 +13,11 @@ public class BlockingState : IState
 
     public void OnEnter()
     {
-        parameter.animator.SetBool("Blocking", true);
+        parameter.animator.SetBool("IsBlocking", true);
 
          // Debug Enter IdleState
         #region 
-        Debug.Log("Enter Idle State");
+        Debug.Log("Enter Blocking State");
         #endregion
 
         RaiseHandsForBlock();
@@ -30,7 +30,7 @@ public class BlockingState : IState
 
     public void OnExit()
     {
-        parameter.animator.SetBool("Blocking", false);
+        parameter.animator.SetBool("IsBlocking", false);
     }
 
     void RaiseHandsForBlock()
