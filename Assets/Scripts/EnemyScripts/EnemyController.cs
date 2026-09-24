@@ -123,7 +123,7 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        if (playerController.currentState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
+        if (playerController.currentPlayerState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
         {
             if (Random.value < 0.4f) // 40% chance to dodge when you throw a punch
             {
@@ -192,7 +192,7 @@ public class EnemyController : MonoBehaviour
 
     void MakeDecision(float dist)
     {
-        if (playerController.currentState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
+        if (playerController.currentPlayerState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
         {
             if (Random.value < 0.5f) // 50% chance to step back and dodge when you punch
             {
@@ -203,7 +203,7 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        if (inCounterAttackPattern && playerController.currentState != PlayerController.FighterState.Attack && attackTimer <= 0)
+        if (inCounterAttackPattern && playerController.currentPlayerState != PlayerController.FighterState.Attack && attackTimer <= 0)
         {
             StartCoroutine(DelayedCounterAttack());
             return;
@@ -330,9 +330,9 @@ public class EnemyController : MonoBehaviour
 
         if (punchHand) punchHand.localScale = Vector3.one * 1.2f;
 
-        if (punchHand && playerController && playerController.headCamera)
+        if (punchHand && playerController && playerController.playerParameter.headCamera)
         {
-            Vector3 cameraPos = playerController.headCamera.position;
+            Vector3 cameraPos = playerController.playerParameter.headCamera.position;
             float distance = Vector3.Distance(punchHand.position, cameraPos);
             float localExtension = Mathf.Clamp(distance - 0.2f, 0.3f, 1.8f);
             ExtendHand(punchHand, localExtension);

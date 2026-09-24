@@ -74,9 +74,9 @@ public class AttackState : IState
 
         if (punchHand) punchHand.localScale = Vector3.one * 1.2f;
 
-        if (punchHand && parameter.playerController && parameter.playerController.headCamera)
+        if (punchHand && parameter.p_fsm && parameter.p_fsm.playerParameter.headCamera)
         {
-            Vector3 cameraPos = parameter.playerController.headCamera.position;
+            Vector3 cameraPos = parameter.p_fsm.playerParameter.headCamera.position;
             float distance = Vector3.Distance(punchHand.position, cameraPos);
             float localExtension = Mathf.Clamp(distance - 0.2f, 0.3f, 1.8f);
             ExtendHand(punchHand, localExtension);
@@ -105,9 +105,9 @@ public class AttackState : IState
 
     void CheckAttackHit()
     {
-        if (parameter.playerController != null && parameter.isAttacking && parameter.attackPhase == 1)
+        if (parameter.p_fsm != null && parameter.isAttacking && parameter.attackPhase == 1)
         {
-            parameter.playerController.HandleHit(15f);
+            parameter.p_fsm.HandleHit(15f);
         }
     }
 

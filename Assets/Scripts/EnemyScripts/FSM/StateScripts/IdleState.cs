@@ -46,7 +46,7 @@ public class IdleState : IState
     {
         if (fsm.currentEnemyState == FighterState.Idle && !parameter.inCounterAttackPattern)
         {
-            if (parameter.playerController.currentState == PlayerController.FighterState.Attack && fsm.currentEnemyState == FighterState.Idle)
+            if (parameter.p_fsm.P_currentState == P_FSM.P_FighterState.Attack && fsm.currentEnemyState == FighterState.Idle)
         {
             if (UnityEngine.Random.value < 0.5f) // 50% chance to step back and dodge when you punch
             {

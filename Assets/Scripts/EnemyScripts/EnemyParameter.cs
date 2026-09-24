@@ -43,7 +43,7 @@ public class EnemyParameter : MonoBehaviour
     public HealthSystem healthSystem;
     public FighterVisualManager visualManager;
     public Rigidbody rb;
-    public PlayerController playerController;
+    public P_FSM p_fsm;
 
     public Vector3 fixedPosition;
     public Vector3[] originalHandPositions;

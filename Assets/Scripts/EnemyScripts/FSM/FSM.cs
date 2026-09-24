@@ -26,7 +26,7 @@ public class FSM : MonoBehaviour
     
     // Declarpation of currentState
     [SerializeField]
-    private IState currentState;
+    private IState currentStateClass;
     public FighterState currentEnemyState;
     
     // Declarpation of Parameter
@@ -67,14 +67,14 @@ public class FSM : MonoBehaviour
 
         if (parameter.playerTarget != null)
         {
-            parameter.playerController = parameter.playerTarget.GetComponent<PlayerController>();
+            parameter.p_fsm = parameter.playerTarget.GetComponent<P_FSM>();
         }
-        if (parameter.playerController == null)
+        if (parameter.p_fsm == null)
         {
-            parameter.playerController = FindObjectOfType<PlayerController>();
-            if (parameter.playerController != null)
+            parameter.p_fsm = parameter.playerTarget.GetComponent<P_FSM>();
+            if (parameter.p_fsm != null)
             {
-                parameter.playerTarget = parameter.playerController.transform;
+                parameter.playerTarget = parameter.p_fsm.transform;
             }
         }
     
@@ -90,7 +90,7 @@ public class FSM : MonoBehaviour
     void Update()
     {
         float dist = Vector3.Distance(transform.position, parameter.playerTarget.position);
-        currentState.OnUpdate(dist);
+        currentStateClass.OnUpdate(dist);
         ExecuteCurrentStateVisuals();
 
         // Timer count down
@@ -110,13 +110,13 @@ public class FSM : MonoBehaviour
 
     public void TransitionState(FighterState type)
     {
-        if (currentState != null)
+        if (currentStateClass != null)
         {
-            currentState.OnExit();
+            currentStateClass.OnExit();
         }
         currentEnemyState = type;
-        currentState = states[type];
-        currentState.OnEnter();
+        currentStateClass = states[type];
+        currentStateClass.OnEnter();
 
         switch (type)
         {
@@ -125,7 +125,7 @@ public class FSM : MonoBehaviour
             case FighterState.Dodge:
             AutoSetTimer(type);
             break;
-            
+
             default:
             return;
         }

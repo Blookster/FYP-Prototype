@@ -1586,7 +1586,7 @@ MonoBehaviour:
   healthSystem: {fileID: 1579327857}
   visualManager: {fileID: 1579327856}
   rb: {fileID: 1579327858}
-  playerController: {fileID: 1777611854}
+  p_fsm: {fileID: 1777611861}
   fixedPosition: {x: 0, y: 0, z: 0}
   originalHandPositions: []
   originalHandY: 0
@@ -1948,10 +1948,11 @@ GameObject:
   - component: {fileID: 1777611851}
   - component: {fileID: 1777611850}
   - component: {fileID: 1777611855}
-  - component: {fileID: 1777611854}
   - component: {fileID: 1777611859}
   - component: {fileID: 1777611858}
   - component: {fileID: 1777611857}
+  - component: {fileID: 1777611860}
+  - component: {fileID: 1777611861}
   m_Layer: 0
   m_Name: PlayerCapsule
   m_TagString: Untagged
@@ -2053,29 +2054,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 120328642}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1777611854
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1777611849}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80da2f3411c1c4845868a50f0378f7f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentState: 0
-  headCamera: {fileID: 120328642}
-  leftHand: {fileID: 1770050102}
-  rightHand: {fileID: 524993427}
-  isSpecialActive: 0
-  specialDuration: 10
-  fistBumpDistanceThreshold: 0.15
-  dodgeBackDistance: 0.8
-  jumpHeight: 1.5
-  blockHandRaiseY: 0.35
-  attackExtensionThreshold: 0.4
 --- !u!54 &1777611855
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2145,6 +2123,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
   maxHP: 100
   healthBarUI: {fileID: 0}
+--- !u!114 &1777611860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777611849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2624cfeffa27b473f87af32b86649cb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerParameter
+  currentState: 0
+  headCamera: {fileID: 120328642}
+  leftHand: {fileID: 1770050102}
+  rightHand: {fileID: 524993427}
+  isSpecialActive: 0
+  specialDuration: 10
+  specialTimer: 0
+  fistBumpDistanceThreshold: 0.15
+  dodgeBackDistance: 0.8
+  jumpHeight: 1.5
+  blockHandRaiseY: 0.35
+  attackExtensionThreshold: 0.4
+  inputHandler: {fileID: 0}
+  healthSystem: {fileID: 0}
+  visualManager: {fileID: 0}
+  rb: {fileID: 0}
+  xrOrigin: {fileID: 0}
+  fixedLocalPosition: {x: 0, y: 0, z: 0}
+  originalHandPositions: []
+  originalHandY: 0
+  isJumping: 0
+--- !u!114 &1777611861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777611849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52c0a38ff16e84cb3bc92375c60a1d2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::P_FSM
+  playerParameter: {fileID: 0}
+  P_currentState: 0
 --- !u!1 &1848801978
 GameObject:
   m_ObjectHideFlags: 0
