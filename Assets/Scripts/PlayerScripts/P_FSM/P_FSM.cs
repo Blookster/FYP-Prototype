@@ -206,7 +206,7 @@ public class P_FSM : MonoBehaviour
         if (P_currentState == P_FighterState.Blocking)
         {
             Debug.Log("Attack blocked! Reduced damage taken.");
-            playerParameter.healthSystem.TakeDamage(damageAmount * 0.2f);
+            //playerParameter.healthSystem.TakeDamage(damageAmount * 0.2f);
         }
         else if (P_currentState == P_FighterState.Dodge)
         {
@@ -215,7 +215,7 @@ public class P_FSM : MonoBehaviour
         else
         {
             P_currentState = P_FighterState.BeenHit;
-            playerParameter.healthSystem.TakeDamage(damageAmount);
+            //playerParameter.healthSystem.TakeDamage(damageAmount);
             if (playerParameter.visualManager != null) playerParameter.visualManager.TriggerFlash(Color.red, 0.15f);
         }
     }

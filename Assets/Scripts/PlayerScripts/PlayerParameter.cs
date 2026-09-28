@@ -6,8 +6,8 @@ public class PlayerParameter : MonoBehaviour
 
     // Player Parameter
     #region
-    [Header("State")]
-    public FighterState currentState;
+    [Header("Player ATK")]
+    public float atk = 10.0f;
 
     [Header("Tracking References")]
     public Transform headCamera;

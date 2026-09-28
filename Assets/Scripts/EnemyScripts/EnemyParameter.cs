@@ -28,6 +28,8 @@ public class EnemyParameter : MonoBehaviour
     public float blockDuration = 1f;
     public float dodgeDuration = 0.6f;
     public float idleWindowDuration = 3f;
+    public float beenHitBodyDuration = 0.5f;
+    public float beenHitHeadDuration = 0.5f;
     public float attackRange = 2.5f;
 
     // [Header("Blocking Visual")]

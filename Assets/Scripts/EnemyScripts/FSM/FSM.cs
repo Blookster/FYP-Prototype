@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR.Haptics;
 using System;
 using System.Collections;
+using System.Threading;
 
 public enum FighterState
     {
@@ -12,8 +13,10 @@ public enum FighterState
         Blocking,
         Dodge,
         Jump,
-        BeenHit,
-        IdleWindow
+        BeenHit_Body,
+        BeenHit_Head,
+        IdleWindow,
+        Dead,
     }
 
 public class FSM : MonoBehaviour
@@ -43,8 +46,10 @@ public class FSM : MonoBehaviour
         states.Add(FighterState.Blocking, new BlockingState(this));
         states.Add(FighterState.Dodge, new DodgeState(this));
         states.Add(FighterState.Jump, new JumpState(this));
-        states.Add(FighterState.BeenHit, new BeenHitState(this));
+        states.Add(FighterState.BeenHit_Body, new BeenHit_Body_State(this));
+        states.Add(FighterState.BeenHit_Head, new BeenHit_Head_State(this));
         states.Add(FighterState.IdleWindow, new IdleWindowState(this));
+        states.Add(FighterState.Dead, new DeadState(this));
         #endregion
 
         // Initalization of timer Dictionary 
@@ -53,6 +58,8 @@ public class FSM : MonoBehaviour
         timers.Add(FighterState.Blocking, parameter.blockDuration);
         timers.Add(FighterState.Dodge, parameter.dodgeDuration);
         timers.Add(FighterState.IdleWindow, parameter.idleWindowDuration);
+        timers.Add(FighterState.BeenHit_Body, parameter.beenHitBodyDuration);
+        timers.Add(FighterState.BeenHit_Head, parameter.beenHitHeadDuration);
         #endregion
 
         // Initalization of Components
@@ -151,12 +158,13 @@ public class FSM : MonoBehaviour
             case FighterState.Dodge:
             case FighterState.Jump:
             case FighterState.IdleWindow:
+            case FighterState.BeenHit_Body:
+            case FighterState.BeenHit_Head:
             TransitionState(FighterState.Idle);
             break;
 
             case FighterState.Idle:
             case FighterState.Attack:
-            case FighterState.BeenHit:
             break;
             
         }
@@ -237,9 +245,16 @@ public class FSM : MonoBehaviour
         parameter.hasTargetPosition = true;
     }
 
-    public void HandleHit(float damage, Vector3 hitDir, bool isHeadHit)
+    public void HandleHit(float damage, bool isHeadHit)
     {
+        StopAllCoroutines();
+        parameter.isAttacking = false;
+
+        if (isHeadHit) TransitionState(FighterState.BeenHit_Head);
         
+        else TransitionState(FighterState.BeenHit_Body);
+
+        parameter.healthSystem.ChangeHealth(damage);
     }
 
 }

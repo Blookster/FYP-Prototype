@@ -431,7 +431,7 @@ public class EnemyController : MonoBehaviour
         // Apply Damage via HealthSystem
         if (healthSystem != null)
         {
-            healthSystem.TakeDamage(damage);
+            //healthSystem.TakeDamage(damage);
         }
 
         // Force state machine into BeenHit
