@@ -15,6 +15,8 @@ public class AttackState : IState
 
     public void OnEnter()
     {
+        fsm.AutoSetTimer(FighterState.Attack);
+        fsm.e_CooldownManager.RetsetCooldown("AttackCooldown");
 
         // Debug Enter AttackState
         #region 
@@ -22,7 +24,7 @@ public class AttackState : IState
         #endregion
 
         fsm.StartCoroutine(AttackSequence());
-        parameter.attackTimer = parameter.attackCooldown;
+        //parameter.attackTimer = parameter.attackCooldown;
         parameter.inCounterAttackPattern = false;
     }
 
@@ -30,10 +32,10 @@ public class AttackState : IState
     {
         if (fsm.currentEnemyState == FighterState.Attack && !parameter.isAttacking)
         {
-            fsm.TransitionState(FighterState.IdleWindow);
-            parameter.stateTimer = parameter.idleWindowDuration;
-            parameter.inCounterAttackPattern = false;
-            return;
+             fsm.TransitionState(FighterState.IdleWindow);
+            
+             parameter.inCounterAttackPattern = false;
+             return;
         }
     }
 

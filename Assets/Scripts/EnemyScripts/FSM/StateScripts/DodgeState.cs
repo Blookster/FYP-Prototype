@@ -14,6 +14,8 @@ public class DodgeState : IState
     public void OnEnter()
     {
         parameter.animator.SetBool("IsDodge", true);
+        fsm.AutoSetTimer(FighterState.Dodge);
+        fsm.e_CooldownManager.RetsetCooldown("DodgeCooldown");
 
         // Debug Enter DodgeState
         #region 

@@ -24,6 +24,7 @@ public class EnemyParameter : MonoBehaviour
     [Header("AI Pattern Settings")]
     public float decisionInterval = 3f;
     public float attackCooldown = 2f;
+    public float blockingCooldown = 3f;
     public float blockDuration = 1f;
     public float dodgeDuration = 0.6f;
     public float idleWindowDuration = 3f;

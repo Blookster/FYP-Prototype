@@ -13,7 +13,10 @@ public class BlockingState : IState
 
     public void OnEnter()
     {
+        
         parameter.animator.SetBool("IsBlocking", true);
+        fsm.AutoSetTimer(FighterState.Blocking);
+        fsm.e_CooldownManager.RetsetCooldown("BlockingCooldown");
 
          // Debug Enter IdleState
         #region 

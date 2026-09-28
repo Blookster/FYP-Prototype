@@ -234,9 +234,9 @@ public class P_FSM : MonoBehaviour
     public void CountDownTheSpTimer()
     {
         playerParameter.specialTimer -= Time.deltaTime;
-            if (playerParameter.specialTimer <= 0)
-            {
-                DeactivateSpecialPower();
-            }
+        if (playerParameter.specialTimer <= 0)
+        {
+            DeactivateSpecialPower();
+        }
     }
 }

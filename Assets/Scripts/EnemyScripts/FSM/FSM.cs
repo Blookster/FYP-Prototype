@@ -32,6 +32,8 @@ public class FSM : MonoBehaviour
     // Declarpation of Parameter
     public EnemyParameter parameter;
 
+    public E_CooldownManager e_CooldownManager;
+
         void Start()
     {
         // Initalization of State Dictionary 
@@ -50,6 +52,7 @@ public class FSM : MonoBehaviour
         timers.Add(FighterState.Attack, parameter.attackCooldown);
         timers.Add(FighterState.Blocking, parameter.blockDuration);
         timers.Add(FighterState.Dodge, parameter.dodgeDuration);
+        timers.Add(FighterState.IdleWindow, parameter.idleWindowDuration);
         #endregion
 
         // Initalization of Components
@@ -57,6 +60,7 @@ public class FSM : MonoBehaviour
         parameter.rb = GetComponent<Rigidbody>();
         parameter.healthSystem = GetComponent<HealthSystem>();
         parameter.visualManager = GetComponent<FighterVisualManager>();
+        e_CooldownManager = gameObject.GetComponent<E_CooldownManager>();
 
         // Initalization of Position
         parameter.fixedPosition = transform.position;
@@ -117,18 +121,6 @@ public class FSM : MonoBehaviour
         currentEnemyState = type;
         currentStateClass = states[type];
         currentStateClass.OnEnter();
-
-        switch (type)
-        {
-            case FighterState.Attack:
-            case FighterState.Blocking:
-            case FighterState.Dodge:
-            AutoSetTimer(type);
-            break;
-
-            default:
-            return;
-        }
         
     }
 
@@ -137,7 +129,8 @@ public class FSM : MonoBehaviour
         parameter.stateTimer = timers[type];
     }
 
-    IEnumerator DelayedCounterAttack()
+    // Not done yet
+    public IEnumerator DelayedCounterAttack()
     {
         parameter.inCounterAttackPattern = false;
         yield return new WaitForSeconds(parameter.counterAttackDelay);
@@ -164,7 +157,8 @@ public class FSM : MonoBehaviour
             case FighterState.Idle:
             case FighterState.Attack:
             case FighterState.BeenHit:
-            return;
+            break;
+            
         }
     }
 
@@ -241,6 +235,11 @@ public class FSM : MonoBehaviour
     {
         parameter.targetPosition = pos;
         parameter.hasTargetPosition = true;
+    }
+
+    public void HandleHit(float damage, Vector3 hitDir, bool isHeadHit)
+    {
+        
     }
 
 }

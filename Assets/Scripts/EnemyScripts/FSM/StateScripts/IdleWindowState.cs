@@ -1,19 +1,20 @@
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public class IdleWindowState : IState
 {
-    private FSM enemyController;
+    private FSM fsm;
     private EnemyParameter parameter;
 
-    public IdleWindowState(FSM enemyController)
+    public IdleWindowState(FSM fsm)
     {
-        this.enemyController = enemyController;
-        this.parameter = enemyController.parameter;
+        this.fsm = fsm;
+        this.parameter = fsm.parameter;
     }
 
     public void OnEnter()
     {
-        //parameter.animator.Play("Idle");
+        fsm.AutoSetTimer(FighterState.IdleWindow);
 
         // Debug Enter IdleWindowState
         #region 
