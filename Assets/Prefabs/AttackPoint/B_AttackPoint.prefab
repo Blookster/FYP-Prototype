@@ -28,9 +28,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2531020982531082084}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.169, y: 2.262, z: 1.043}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7396456292058770339}
@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1c7190517be85744a0163cd2cab8d40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::B_ATP_Script
-  detectRange: 0.4
+  detectRange: 120
 --- !u!1 &6201142415320626364
 GameObject:
   m_ObjectHideFlags: 0

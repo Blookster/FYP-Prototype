@@ -11,19 +11,22 @@ public class L_ATP_Script : MonoBehaviour
 
             Vector3 dir = other.transform.position - transform.position;
 
-            if (Vector3.Cross(Vector3.forward, dir).y > detectRange)
+            if (Vector3.Cross(Vector3.forward, dir).y < detectRange)
             {
-                Destroy(this.gameObject);
+                //Destroy(this.gameObject);
+                GameManager.instance.audioManager.Play(0, "hitSfx", false);
                 Debug.Log("Correct direction!!!");
+                GameManager.instance.attackPointManager.StartNextRound();
 
             }
-            else if (Vector3.Dot(Vector3.forward, dir) < detectRange)
+            else if (Vector3.Cross(Vector3.forward, dir).y > detectRange)
             {
+                GameManager.instance.audioManager.Play(0, "missSfx", false);
                 Debug.Log("Incorrect direction!!!");
             }
 
             // Debug Direction
-            //Debug.Log(Vector3.Cross(Vector3.forward, dir).y);
+            Debug.Log(Vector3.Cross(Vector3.forward, dir).y);
         }
     }
 }

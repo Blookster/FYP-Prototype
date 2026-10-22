@@ -8,22 +8,18 @@ public class T_ATP_Script : MonoBehaviour
     {
         if (other.gameObject.tag == ("PlayerHand"))
         {
-
-            Vector3 dir = other.transform.position - transform.position;
-
-            if (Vector3.Dot(Vector3.forward, dir) < detectRange)
+            if (Vector3.Angle(transform.up, other.gameObject.transform.position - transform.position) < detectRange)
             {
-                Destroy(this.gameObject);
+                GameManager.instance.audioManager.Play(0, "hitSfx", false);
                 Debug.Log("Correct direction!!!");
-
+                GameManager.instance.attackPointManager.StartNextRound();
             }
-            else if (Vector3.Dot(Vector3.forward, dir) > detectRange)
+            else
             {
+                GameManager.instance.audioManager.Play(0, "missSfx", false);
                 Debug.Log("Incorrect direction!!!");
             }
 
-            // Debug Direction
-            //Debug.Log(Vector3.Dot(Vector3.forward, dir));
         }
     }
 }
