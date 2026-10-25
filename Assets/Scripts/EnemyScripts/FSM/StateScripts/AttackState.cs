@@ -1,7 +1,14 @@
 using UnityEngine;
 using System.Collections;
-using Unity.VisualScripting.FullSerializer;
 
+// ============================================================================
+//  AttackState (enemy)
+// ============================================================================
+// Everything is your original code except the parts marked [NEW] / [CHANGED].
+//  [FIX]     Removed "using Unity.VisualScripting.FullSerializer;" (unused).
+//  [CHANGED] CheckAttackHit used to call HandleHit(15f) on the player UNCONDITIONALLY: no matter
+//            where the player stood, every punch "landed". Now it first checks REACH.
+//  [NEW]     IsPlayerInReach() - the VR distance check (explained below).
 public class AttackState : IState
 {
     private FSM fsm;
@@ -19,7 +26,7 @@ public class AttackState : IState
         fsm.e_CooldownManager.RetsetCooldown("AttackCooldown");
 
         // Debug Enter AttackState
-        #region 
+        #region
         Debug.Log("Enter Attack State");
         #endregion
 
@@ -32,16 +39,16 @@ public class AttackState : IState
     {
         if (fsm.currentEnemyState == FighterState.Attack && !parameter.isAttacking)
         {
-             fsm.TransitionState(FighterState.IdleWindow);
-            
-             parameter.inCounterAttackPattern = false;
-             return;
+            fsm.TransitionState(FighterState.IdleWindow);
+
+            parameter.inCounterAttackPattern = false;
+            return;
         }
     }
 
     public void OnExit()
     {
-        
+
     }
 
     IEnumerator AttackSequence()
@@ -59,8 +66,6 @@ public class AttackState : IState
         if (parameter.animator != null)
         {
             parameter.animator.SetTrigger(chosenAttack);
-
-            //parameter.animator.SetTrigger(chosenAttack);
 
             Debug.Log($"[EnemyController] Throwing punch: {chosenAttack}");
         }
@@ -105,12 +110,51 @@ public class AttackState : IState
         parameter.attackPhase = 0;
     }
 
+    // [CHANGED] ---------------------------------------------------------------------------
     void CheckAttackHit()
     {
-        if (parameter.p_fsm != null && parameter.isAttacking && parameter.attackPhase == 1)
+        // Same guards as before, written as an early "return" so the real work isn't nested.
+        if (parameter.p_fsm == null || !parameter.isAttacking || parameter.attackPhase != 1) return;
+
+        if (!IsPlayerInReach())
         {
-            parameter.p_fsm.HandleHit(15f);
+            // The punch missed because the player stepped / leaned out of range.
+            Debug.Log("[Enemy] Punch whiffed - the player is out of reach.");
+            return;
         }
+
+        // The damage number now lives in EnemyParameter (Punch Damage) instead of a hard-coded 15.
+        // P_FSM.HandleHit then decides what the player's state does with it (block / dodge / full hit).
+        parameter.p_fsm.HandleHit(parameter.punchDamage);
+    }
+
+    // [NEW] -------------------------------------------------------------------------------
+    //  THE VR DISTANCE FIX (enemy -> player half)
+    // The problem: in VR you can't count on the enemy's glove physically touching the player.
+    // The player is wherever they stand in their room, the glove is an animation, and there is
+    // no way to "push back" a real person.
+    // The fix: don't ask "did two colliders touch?". Ask "was the player's HEAD within reach
+    // of this punch?" - a simple distance test. It works however the player is standing, and it
+    // makes real-life movement matter: step back or lean back out of reach and the punch whiffs.
+    bool IsPlayerInReach()
+    {
+        Transform head = null;
+        if (parameter.p_fsm != null && parameter.p_fsm.playerParameter != null)
+        {
+            head = parameter.p_fsm.playerParameter.headCamera;
+        }
+
+        // If we can't find the head we can't measure, so fall back to the old behaviour (always hits).
+        if (head == null) return true;
+
+        Vector3 toHead = head.position - fsm.transform.position;
+
+        // Zero the height. We measure along the FLOOR only, so a tall player or a player who
+        // crouches isn't treated as "closer" or "further" from the enemy.
+        toHead.y = 0.0f;
+
+        // magnitude = length of the vector = the distance in metres.
+        return toHead.magnitude <= parameter.punchReach;
     }
 
     void ExtendHand(Transform hand, float extension)

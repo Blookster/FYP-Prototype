@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.InputSystem.XR.Haptics;
-using System;
-using System.Collections;
 
+// [CHANGED] Removed the unused "using UnityEditorInternal;" (and the other unused usings).
+// UnityEditorInternal only exists inside the Unity EDITOR. It compiles fine while you press Play
+// in the editor, but the build for the Quest (APK) fails with "namespace UnityEditorInternal
+// does not exist". If an unused using line causes an error, just delete it.
 public class EnemyParameter : MonoBehaviour
 {
     public static EnemyParameter instance;
@@ -20,6 +19,17 @@ public class EnemyParameter : MonoBehaviour
     public float attackActiveTime = 0.25f;
     public float attackRecoveryTime = 0.4f;
     public float counterAttackDelay = 0.5f;
+
+    // [NEW] ------------------------------------------------------------------------------
+    [Header("Hitting the Player (VR distance)")]
+    [Tooltip("How far (metres, measured along the floor from the enemy to the player's HEAD) a punch can connect. " +
+             "Player further away than this = the punch whiffs. Keep it a bit LARGER than GameManager's Engagement Distance " +
+             "(so he can hit you) and SMALLER than Engagement Distance + the player's dodge lean-back (so leaning back really dodges).")]
+    public float punchReach = 1.8f;
+
+    [Tooltip("Damage of one landed punch. (This was hard-coded as 15 inside AttackState before.)")]
+    public float punchDamage = 15.0f;
+    // -------------------------------------------------------------------------------------
 
     [Header("AI Pattern Settings")]
     public float decisionInterval = 3f;
@@ -63,11 +73,11 @@ public class EnemyParameter : MonoBehaviour
 
     [Header("Animator & Animations")]
     public Animator animator;
-    
+
     void Awake()
     {
         if (instance == null) instance = this;
-        else if(instance != null) Destroy(this);
+        else if (instance != null) Destroy(this);
     }
 
     void Start()

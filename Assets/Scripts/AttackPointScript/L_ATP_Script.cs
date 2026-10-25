@@ -1,32 +1,9 @@
 using UnityEngine;
 
-public class L_ATP_Script : MonoBehaviour
+// L = LEFT bubble: the fist comes in from the LEFT side and travels to the right (a left hook).
+// (Same meaning as before: the old script counted a hit when the hand was on the left of the bubble.)
+public class L_ATP_Script : AttackPointBase
 {
-    public float detectRange;
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == ("PlayerHand"))
-        {
-
-            Vector3 dir = other.transform.position - transform.position;
-
-            if (Vector3.Cross(Vector3.forward, dir).y < detectRange)
-            {
-                //Destroy(this.gameObject);
-                GameManager.instance.audioManager.Play(0, "hitSfx", false);
-                Debug.Log("Correct direction!!!");
-                GameManager.instance.attackPointManager.StartNextRound();
-
-            }
-            else if (Vector3.Cross(Vector3.forward, dir).y > detectRange)
-            {
-                GameManager.instance.audioManager.Play(0, "missSfx", false);
-                Debug.Log("Incorrect direction!!!");
-            }
-
-            // Debug Direction
-            Debug.Log(Vector3.Cross(Vector3.forward, dir).y);
-        }
-    }
+    // Vector3.right = (1, 0, 0) = local +X = toward the player's right.
+    protected override Vector3 RequiredPunchDirection => Vector3.right;
 }

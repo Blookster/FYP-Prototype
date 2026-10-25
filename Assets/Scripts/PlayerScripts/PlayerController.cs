@@ -1,41 +1,26 @@
 using UnityEngine;
-
 using System.Collections;
 
 
 
 [RequireComponent(typeof(Rigidbody))]
-
 [RequireComponent(typeof(HealthSystem))]
-
 [RequireComponent(typeof(PlayerInputHandler))]
-
 [RequireComponent(typeof(FighterVisualManager))]
-
 [RequireComponent(typeof(PlayerParameter))]
-
 // ^ Why it's coded like this: In Unity, scripts often crash with NullReferenceException if a required component is forgotten on the GameObject. These attributes tell Unity: "If you attach PlayerController to a capsule, automatically force-attach these other scripts too." It guarantees structural integrity before the game even presses Play.
 
 
 
 public class PlayerController : MonoBehaviour
-
 {
-
     public enum FighterState
-
     {
-
         Idle,
-
         Attack,
-
         Blocking,
-
         Dodge,
-
         BeenHit
-
     }
 
 
@@ -319,21 +304,15 @@ public class PlayerController : MonoBehaviour
 
 
     void CheckGroundSlamJump()
-
     {
+        if (playerParameter.leftHand == null || playerParameter.rightHand == null) return;
 
         if (!playerParameter.isJumping && playerParameter.leftHand.position.y < 0.4f && playerParameter.rightHand.position.y < 0.4f)
-
         {
-
             playerParameter.isJumping = true;
-
             currentPlayerState = FighterState.Dodge;
-
             StartCoroutine(JumpSequence());
-
         }
-
     }
 
 
