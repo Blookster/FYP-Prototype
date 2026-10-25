@@ -1183,8 +1183,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   audioManager_P: {fileID: 2003675224797811555, guid: d9251fb31a74acc408b0d52fe07dc9a1, type: 3}
   attackPointManager_P: {fileID: 5864688144890236014, guid: 7915acf6a839d4f43809f2e373721397, type: 3}
-  audioManager: {fileID: 0}
-  attackPointManager: {fileID: 0}
+  audioManager: {fileID: 8105296203944040083, guid: d9251fb31a74acc408b0d52fe07dc9a1, type: 3}
+  attackPointManager: {fileID: 3812697674737800538, guid: 7915acf6a839d4f43809f2e373721397, type: 3}
 --- !u!1001 &1002039941
 PrefabInstance:
   m_ObjectHideFlags: 0

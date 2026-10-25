@@ -17,6 +17,7 @@ public class PlayerParameter : MonoBehaviour
     [Header("Special Weapon Power Settings")]
     public bool isSpecialActive = false;
     public float specialDuration = 10f;
+    public float specialDamage = 20f;
     public float specialTimer;
     public float fistBumpDistanceThreshold = 0.15f;
 
@@ -37,6 +38,10 @@ public class PlayerParameter : MonoBehaviour
     public Vector3[] originalHandPositions;
     public float originalHandY;
     public bool isJumping = false;
+
+    [Header("Debug")]
+    public float currentDamage;
+
     #endregion
 
     void Awake()

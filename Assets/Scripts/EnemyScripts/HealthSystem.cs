@@ -10,7 +10,7 @@ public class HealthSystem : MonoBehaviour
 
     public Slider enemyHpSlider;
 
-    public FSM fsm;
+    public FSM fsm; //FighterStateMachine
 
     void Start()
     {
