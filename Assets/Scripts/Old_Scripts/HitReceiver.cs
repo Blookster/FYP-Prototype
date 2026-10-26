@@ -22,6 +22,7 @@ public class HitReceiver : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"HitReceiver detected: {name} collided with {other.name}, " +$"tag = {other.tag}",this);
         // Scenario A: Player hit by Enemy
         if (playerController != null && other.CompareTag("EnemyHand"))
         {
