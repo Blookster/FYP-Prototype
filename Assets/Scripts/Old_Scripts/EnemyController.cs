@@ -43,9 +43,7 @@ public class EnemyController : MonoBehaviour
     public float blockHandRaiseY = 0.35f;
 
     [Header("Health Settings")]
-    public float maxHP = 100f;
-    public float currentHP;
-    public UnityEngine.UI.Slider healthSlider;
+
 
     [Header("References")]
     public Transform playerTarget;
@@ -105,12 +103,7 @@ public class EnemyController : MonoBehaviour
             if (playerController != null) playerTarget = playerController.transform;
         }
 
-        currentHP = maxHP;
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHP;
-            healthSlider.value = currentHP;
-        }
+
 
         Debug.Log("[EnemyController] Initialized. PlayerController found: " + (playerController != null));
 
@@ -123,6 +116,9 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
+        if (healthSystem != null && healthSystem.IsDead)
+            return;
+
         if (playerController.currentPlayerState == PlayerController.FighterState.Attack && currentEnemyState == FighterState.Idle)
         {
             if (Random.value < 0.4f) // 40% chance to dodge when you throw a punch
@@ -149,6 +145,8 @@ public class EnemyController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (healthSystem != null && healthSystem.IsDead)
+            return;
         ExecuteCurrentStateMovement();
     }
 
@@ -344,9 +342,9 @@ public class EnemyController : MonoBehaviour
 
         if (punchCollider) punchCollider.enabled = true;
 
-        yield return new WaitForSeconds(attackActiveTime * 0.5f);
-        CheckAttackHit();
-        yield return new WaitForSeconds(attackActiveTime * 0.5f);
+        // Keep the punch hitbox active for the attack window.
+        // HitReceiver handles the collision if the glove actually connects.
+        yield return new WaitForSeconds(attackActiveTime);
 
         // Phase 2: Recovery
         attackPhase = 2;
@@ -357,14 +355,6 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(attackRecoveryTime);
         isAttacking = false;
         attackPhase = 0;
-    }
-
-    void CheckAttackHit()
-    {
-        if (playerController != null && isAttacking && attackPhase == 1)
-        {
-            playerController.HandleHit(15f);
-        }
     }
 
     void ExtendHand(Transform hand, float extension)
@@ -410,13 +400,16 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // Called externally by EnemyHitReceiver when player hits the enemy
+    // Called when the player successfully hits the enemy.
     public void HandleHit(float damage, Vector3 hitDir, bool isHeadHit)
     {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        // Safety checks: don't process hits if required components are missing.
+        if (healthSystem == null || healthSystem.IsDead)
+            return;
 
-        // 1. DODGE CHECK: If enemy is dodging, they are invulnerable. Hits miss!
-        if (stateInfo.IsName("Dodge"))
+        // Preserve your existing dodge behaviour.
+        if (animator != null &&
+            animator.GetCurrentAnimatorStateInfo(0).IsName("Dodge"))
         {
             Debug.Log("[Combat] Hit missed! Enemy is dodging.");
             EnemyDebugUI.enemyStateText = "Dodging (Invulnerable)";
@@ -424,55 +417,57 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        // 2. STOP CURRENT ATTACK COROUTINE: Interrupt whatever the enemy was doing!
+        // Interrupt the current attack or delayed action.
         StopAllCoroutines();
         isAttacking = false;
 
-        // Apply Damage via HealthSystem
-        if (healthSystem != null)
+        // Apply damage through the one authoritative health component.
+        healthSystem.TakeDamage(damage);
+
+        // Update the enemy's combat state.
+        if (healthSystem.IsDead)
         {
-            //healthSystem.TakeDamage(damage);
+            currentEnemyState = FighterState.BeenHit;
+
+            if (leftHandCollider != null)
+                leftHandCollider.enabled = false;
+
+            if (rightHandCollider != null)
+                rightHandCollider.enabled = false;
+
+            if (animator != null)
+                animator.SetTrigger("KO");
+
+            EnemyDebugUI.enemyStateText = "KO'd";
+            EnemyDebugUI.currentHP = healthSystem.CurrentHp;
+            return;
         }
 
-        // Force state machine into BeenHit
         currentEnemyState = FighterState.BeenHit;
-        stateTimer = 0.5f; // Hit stun duration
+        stateTimer = 0.5f;
 
-        // Update Health Bar Slider Value
-        if (healthSlider != null)
+        // Play the appropriate hit reaction.
+        if (animator != null)
         {
-            healthSlider.value -= damage;
-            healthSlider.value = Mathf.Clamp(healthSlider.value, 0, healthSlider.maxValue);
-        }
-
-        // Trigger Animations Instantly and Update Debug UI
-        if (isHeadHit)
-        {
-            if (Random.value > 0.5f)
+            if (isHeadHit)
             {
-                animator.SetTrigger("HeadHitRight");
-                EnemyDebugUI.lastHitResultText = $"Head Hit (Right) (-{damage} HP)";
+                string trigger = Random.value > 0.5f
+                    ? "HeadHitRight"
+                    : "HeadHitLeft";
+
+                animator.SetTrigger(trigger);
+                EnemyDebugUI.lastHitResultText =
+                    $"Head Hit (-{damage} HP)";
             }
             else
             {
-                animator.SetTrigger("HeadHitLeft");
-                EnemyDebugUI.lastHitResultText = $"Head Hit (Left) (-{damage} HP)";
+                animator.SetTrigger("StomachHit");
+                EnemyDebugUI.lastHitResultText =
+                    $"Stomach Hit (-{damage} HP)";
             }
-        }
-        else
-        {
-            animator.SetTrigger("StomachHit");
-            EnemyDebugUI.lastHitResultText = $"Stomach Hit (-{damage} HP)";
         }
 
         EnemyDebugUI.enemyStateText = "Been Hit!";
-        EnemyDebugUI.currentHP = healthSlider != null ? healthSlider.value : currentHP;
-
-        // Check for KO
-        if (healthSlider != null && healthSlider.value <= 0)
-        {
-            animator.SetTrigger("KO");
-            EnemyDebugUI.enemyStateText = "KO'd";
-        }
+        EnemyDebugUI.currentHP = healthSystem.CurrentHp;
     }
 }

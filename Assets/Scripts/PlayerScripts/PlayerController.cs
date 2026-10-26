@@ -443,40 +443,51 @@ public class PlayerController : MonoBehaviour
 
     // Called externally by the HitReceiver script when an enemy fist hits the player
 
+    // Called by HitReceiver when an enemy punch connects.
     public void HandleHit(float damageAmount)
-
     {
+        // Check that the player's health component is available.
+        if (playerParameter == null ||
+            playerParameter.healthSystem == null)
+        {
+            Debug.LogWarning("Player HealthSystem is missing.", this);
+            return;
+        }
+
+        // A defeated player should not take additional damage.
+        if (playerParameter.healthSystem.IsDead)
+            return;
 
         if (currentPlayerState == FighterState.Blocking)
-
         {
+            // Blocking reduces damage to 20% of the original amount.
+            float reducedDamage = damageAmount * 0.2f;
 
-            Debug.Log("Attack blocked! Reduced damage taken.");
+            playerParameter.healthSystem.TakeDamage(reducedDamage);
 
-            //playerParameter.healthSystem.TakeDamage(damageAmount * 0.2f);
-
+            Debug.Log(
+                $"Attack blocked! Damage taken: {reducedDamage}"
+            );
         }
-
         else if (currentPlayerState == FighterState.Dodge)
-
         {
-
+            // A successful dodge takes no damage.
             Debug.Log("Dodged successfully! Zero damage.");
-
         }
-
         else
-
         {
+            // Normal hit: apply full damage and enter hit-stun.
+            playerParameter.healthSystem.TakeDamage(damageAmount);
 
             currentPlayerState = FighterState.BeenHit;
 
-            //playerParameter.healthSystem.TakeDamage(damageAmount);
-
-            if (playerParameter.visualManager != null) playerParameter.visualManager.TriggerFlash(Color.red, 0.15f);
-
+            if (playerParameter.visualManager != null)
+            {
+                playerParameter.visualManager.TriggerFlash(
+                    Color.red, 0.15f
+                );
+            }
         }
-
     }
 
 }
