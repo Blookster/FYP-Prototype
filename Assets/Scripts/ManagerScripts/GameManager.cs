@@ -68,8 +68,8 @@ public class GameManager : MonoBehaviour
         // ---- Find the two fighters if they weren't dragged in ---------------------------
         // EnemyParameter / PlayerParameter already have static "instance" fields, so we can
         // reach their GameObjects without searching the whole scene.
-        if (enemyFsm == null && EnemyParameter.instance != null) enemyFsm = EnemyParameter.instance.GetComponent<FSM>();
-        if (playerFsm == null && PlayerParameter.instance != null) playerFsm = PlayerParameter.instance.GetComponent<P_FSM>();
+        //if (enemyFsm == null && EnemyParameter.instance != null) enemyFsm = GameObject.FindWithTag("Enemy").GetComponent<FSM>();
+        //if (playerFsm == null && PlayerParameter.instance != null) playerFsm = GameObject.FindWithTag("player").GetComponent<P_FSM>();
 
         if (enemyFsm == null || playerFsm == null)
         {

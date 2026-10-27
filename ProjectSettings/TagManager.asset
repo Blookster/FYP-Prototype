@@ -33,6 +33,7 @@ TagManager:
   - QDSUIToggleThumbnail
   - EnemyHand
   - PlayerHand
+  - Enemy
   layers:
   - Default
   - TransparentFX
