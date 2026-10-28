@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2502226816932117650}
   - component: {fileID: 168857159713176027}
   - component: {fileID: 4700324172998039095}
-  - component: {fileID: 3019039574729461369}
+  - component: {fileID: 7593545392921775926}
   m_Layer: 0
   m_Name: R_AttackPoint
   m_TagString: Untagged
@@ -113,7 +113,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3019039574729461369
+--- !u!114 &7593545392921775926
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,10 +122,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3572471612150354535}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75dbf13a5cd4ef245a05071d20f248c8, type: 3}
+  m_Script: {fileID: 11500000, guid: 9623ffcea143fe54c9e8c9aaa0241fc3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::R_ATP_Script
-  detectRange: 0.3
+  m_EditorClassIdentifier: Assembly-CSharp::ATP_Script
+  atpTypeName: R_ATP
 --- !u!1 &8073565258406587275
 GameObject:
   m_ObjectHideFlags: 0

@@ -48,6 +48,10 @@ public class AttackPointManager : MonoBehaviour
     private GameObject currentAttackPoint;
     private Coroutine respawnRoutine;
 
+    public int spawnLimit;
+    [SerializeField]
+    int currentSpawnLimit = 0;
+
     private void Awake()
     {
         if (instance != null) Destroy(this);
@@ -67,6 +71,26 @@ public class AttackPointManager : MonoBehaviour
     public void SpawnAttackPoint()
     {
         currentAttackPoint = Instantiate(attackPoints[Random.Range(0, attackPoints.Count)], spawnPoint.transform.position, Quaternion.identity);
+        currentSpawnLimit += 1;
+    }
+
+    public void DestroyCurrentATP()
+    {
+        Destroy(currentAttackPoint);
+        GoToNextRound();
+    }
+
+    void GoToNextRound()
+    {
+        if (currentSpawnLimit >= spawnLimit)
+        {
+            Debug.Log("Game Over");
+            return;
+        }
+        else
+        {
+            SpawnAttackPoint();
+        }
     }
     
 

@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 2923869683462822976}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.584}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.584}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -81,5 +81,10 @@ MonoBehaviour:
   - {fileID: 6080434911495681493, guid: 78df6605fa44a7548b7a6e08324aa69c, type: 3}
   - {fileID: 3572471612150354535, guid: a392e34e03814c849a03173fa2c2ba30, type: 3}
   - {fileID: 2531020982531082084, guid: b0d2e55fbaeff364d97eb9bd9530d7b1, type: 3}
-  - {fileID: 1063940782798570504, guid: 47802fa2448723947bb53a6dc42e31c0, type: 3}
   spawnPoint: {fileID: 2567500779920754672}
+  bubbleDistance: 0.55
+  bubbleHeightOffset: -0.25
+  respawnDelay: 0.8
+  bubbleDamageScale: 1.5
+  popEffectPrefab: {fileID: 0}
+  spawnLimit: 5

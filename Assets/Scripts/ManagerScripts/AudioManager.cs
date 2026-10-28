@@ -48,6 +48,7 @@ public class AudioManager : MonoBehaviour
             return missSfx;
 
             default:
+            Debug.LogError("Cannot find Sfx");
             return null;
         }
     }
