@@ -104,7 +104,8 @@ public abstract class AttackPointBase : MonoBehaviour
             consumed = true;
             // The bubble does NOT deal damage itself. It reports to the manager, which owns
             // the rules (damage amount, respawn timing, game state). One owner = one place to change.
-            GameManager.instance.attackPointManager.OnAttackPointHit(this);
+            //GameManager.instance.attackPointManager.OnAttackPointHit(this);
+            GameManager.instance.audioManager.Play(0, "hitSfx", false);
         }
         else
         {

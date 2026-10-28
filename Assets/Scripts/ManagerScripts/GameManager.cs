@@ -68,21 +68,24 @@ public class GameManager : MonoBehaviour
         // ---- Find the two fighters if they weren't dragged in ---------------------------
         // EnemyParameter / PlayerParameter already have static "instance" fields, so we can
         // reach their GameObjects without searching the whole scene.
+
         //if (enemyFsm == null && EnemyParameter.instance != null) enemyFsm = GameObject.FindWithTag("Enemy").GetComponent<FSM>();
         //if (playerFsm == null && PlayerParameter.instance != null) playerFsm = GameObject.FindWithTag("player").GetComponent<P_FSM>();
 
-        if (enemyFsm == null || playerFsm == null)
-        {
-            Debug.LogError("[GameManager] Could not find the enemy FSM and/or the player P_FSM. Drag them into the GameManager.");
-            return;
-        }
+        //if (enemyFsm == null || playerFsm == null)
+        //{
+        //    Debug.LogError("[GameManager] Could not find the enemy FSM and/or the player P_FSM. Drag them into the GameManager.");
+        //    return;
+        //}
 
         // ---- Listen for deaths ------------------------------------------------------------
         // "+=" subscribes a function to the event we added to HealthSystem.
-        enemyHealth = enemyFsm.GetComponent<HealthSystem>();
-        playerHealth = playerFsm.GetComponent<HealthSystem>();
-        enemyHealth.OnDied += OnEnemyDied;
-        playerHealth.OnDied += OnPlayerDied;
+
+        //enemyHealth = enemyFsm.GetComponent<HealthSystem>();
+        //playerHealth = playerFsm.GetComponent<HealthSystem>();
+
+        //enemyHealth.OnDied += OnEnemyDied;
+        //playerHealth.OnDied += OnPlayerDied;
 
         StartCoroutine(StartFight());
     }
@@ -104,7 +107,9 @@ public class GameManager : MonoBehaviour
         if (recenterPlayer) RecenterPlayerOnEnemy();
 
         State = GameState.Playing;
-        attackPointManager.BeginRound(); // the first bubble appears in front of the player
+
+        //attackPointManager.BeginRound(); // the first bubble appears in front of the player
+
         Debug.Log("[GameManager] FIGHT!");
     }
 
@@ -158,7 +163,7 @@ public class GameManager : MonoBehaviour
         State = result;
         Debug.Log("[GameManager] Game over: " + result);
 
-        attackPointManager.EndRound();
+        //attackPointManager.EndRound();
 
         if (panel != null) panel.SetActive(true);
         if (restartDelay > 0.0f) StartCoroutine(RestartAfterDelay());

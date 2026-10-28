@@ -1,3 +1,4 @@
+using Meta.WitAi;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,8 @@ using UnityEngine;
 //         to deliver its first real position, so spawning at frame 0 puts it in the wrong place).
 public class AttackPointManager : MonoBehaviour
 {
+    public static AttackPointManager instance;
+
     [Header("Bubble Prefabs (one is picked at random each time)")]
     public List<GameObject> attackPoints = new List<GameObject>();
 
@@ -45,118 +48,142 @@ public class AttackPointManager : MonoBehaviour
     private GameObject currentAttackPoint;
     private Coroutine respawnRoutine;
 
-    // Called by the GameManager when the fight begins.
+    private void Awake()
+    {
+        if (instance != null) Destroy(this);
+        else if (instance == null) instance = this;
+    }
+
+    private void Start()
+    {
+        BeginRound();
+    }
+
     public void BeginRound()
     {
         SpawnAttackPoint();
     }
 
-    // Called by the GameManager when the fight ends (win or lose): clean everything up.
-    public void EndRound()
+    public void SpawnAttackPoint()
     {
-        // Stop a respawn that is still counting down, or a new bubble would appear after the game ended.
-        if (respawnRoutine != null)
-        {
-            StopCoroutine(respawnRoutine);
-            respawnRoutine = null;
-        }
-
-        // Unity overloads "== null" so a destroyed object counts as null too.
-        if (currentAttackPoint != null)
-        {
-            Destroy(currentAttackPoint);
-            currentAttackPoint = null;
-        }
+        currentAttackPoint = Instantiate(attackPoints[Random.Range(0, attackPoints.Count)], spawnPoint.transform.position, Quaternion.identity);
     }
+    
 
-    void SpawnAttackPoint()
-    {
-        if (attackPoints.Count == 0)
-        {
-            Debug.LogWarning("[AttackPointManager] No bubble prefabs assigned in 'Attack Points'.");
-            return;
-        }
+    #region Old Version
+    // Called by the GameManager when the fight begins.
+    //public void BeginRound()
+    //{
+    //    SpawnAttackPoint();
+    //}
 
-        // Never spawn outside the fight (e.g. a respawn timer that finishes just as the game ends).
-        if (GameManager.instance.State != GameManager.GameState.Playing) return;
+    //// Called by the GameManager when the fight ends (win or lose): clean everything up.
+    //public void EndRound()
+    //{
+    //    // Stop a respawn that is still counting down, or a new bubble would appear after the game ended.
+    //    if (respawnRoutine != null)
+    //    {
+    //        StopCoroutine(respawnRoutine);
+    //        respawnRoutine = null;
+    //    }
 
-        Vector3 position;
-        Quaternion rotation;
-        GetSpawnPose(out position, out rotation);
+    //    // Unity overloads "== null" so a destroyed object counts as null too.
+    //    if (currentAttackPoint != null)
+    //    {
+    //        Destroy(currentAttackPoint);
+    //        currentAttackPoint = null;
+    //    }
+    //}
 
-        // Pick a random prefab from the list. UnityEngine.Random.Range(0, n) returns 0..n-1 for ints.
-        int index = Random.Range(0, attackPoints.Count);
-        currentAttackPoint = Instantiate(attackPoints[index], position, rotation);
-    }
+    //void SpawnAttackPoint()
+    //{
+    //    if (attackPoints.Count == 0)
+    //    {
+    //        Debug.LogWarning("[AttackPointManager] No bubble prefabs assigned in 'Attack Points'.");
+    //        return;
+    //    }
 
-    // Works out WHERE the bubble goes and WHICH WAY it faces. "out" parameters let one
-    // function hand back two results.
-    void GetSpawnPose(out Vector3 position, out Quaternion rotation)
-    {
-        Transform head = (PlayerParameter.instance != null) ? PlayerParameter.instance.headCamera : null;
+    //    // Never spawn outside the fight (e.g. a respawn timer that finishes just as the game ends).
+    //    if (GameManager.instance.State != GameManager.GameState.Playing) return;
 
-        if (head == null)
-        {
-            // Fallback so the game still runs without a head reference.
-            position = (spawnPoint != null) ? spawnPoint.position : transform.position;
-            rotation = Quaternion.identity;
-            return;
-        }
+    //    Vector3 position;
+    //    Quaternion rotation;
+    //    GetSpawnPose(out position, out rotation);
 
-        // The head's "forward" tilts when the player looks down or up. Flatten it onto the
-        // floor plane so the bubble stays at the same height however they tilt their head.
-        Vector3 flatForward = Vector3.ProjectOnPlane(head.forward, Vector3.up);
+    //    // Pick a random prefab from the list. UnityEngine.Random.Range(0, n) returns 0..n-1 for ints.
+    //    int index = Random.Range(0, attackPoints.Count);
+    //    currentAttackPoint = Instantiate(attackPoints[index], position, rotation);
+    //}
 
-        // Looking straight up/down leaves (almost) nothing after flattening - avoid dividing by ~0.
-        if (flatForward.sqrMagnitude < 0.001f) flatForward = Vector3.forward;
-        flatForward.Normalize();
+    //// Works out WHERE the bubble goes and WHICH WAY it faces. "out" parameters let one
+    //// function hand back two results.
+    //void GetSpawnPose(out Vector3 position, out Quaternion rotation)
+    //{
+    //    Transform head = (PlayerParameter.instance != null) ? PlayerParameter.instance.headCamera : null;
 
-        position = head.position + flatForward * bubbleDistance;
-        position.y = head.position.y + bubbleHeightOffset;
+    //    if (head == null)
+    //    {
+    //        // Fallback so the game still runs without a head reference.
+    //        position = (spawnPoint != null) ? spawnPoint.position : transform.position;
+    //        rotation = Quaternion.identity;
+    //        return;
+    //    }
 
-        // Rotate the bubble so ITS local +Z points the way the player is facing. That is what
-        // lets AttackPointBase describe punch directions in local space ("forward" = away from the player).
-        rotation = Quaternion.LookRotation(flatForward, Vector3.up);
-    }
+    //    // The head's "forward" tilts when the player looks down or up. Flatten it onto the
+    //    // floor plane so the bubble stays at the same height however they tilt their head.
+    //    Vector3 flatForward = Vector3.ProjectOnPlane(head.forward, Vector3.up);
 
-    // Called by AttackPointBase when a bubble was punched from the right direction.
-    public void OnAttackPointHit(AttackPointBase bubble)
-    {
-        GameManager gm = GameManager.instance;
+    //    // Looking straight up/down leaves (almost) nothing after flattening - avoid dividing by ~0.
+    //    if (flatForward.sqrMagnitude < 0.001f) flatForward = Vector3.forward;
+    //    flatForward.Normalize();
 
-        // Ignore hits that land after the fight is over.
-        if (gm.State != GameManager.GameState.Playing) return;
+    //    position = head.position + flatForward * bubbleDistance;
+    //    position.y = head.position.y + bubbleHeightOffset;
 
-        gm.audioManager.Play(0, "hitSfx", false);
+    //    // Rotate the bubble so ITS local +Z points the way the player is facing. That is what
+    //    // lets AttackPointBase describe punch directions in local space ("forward" = away from the player).
+    //    rotation = Quaternion.LookRotation(flatForward, Vector3.up);
+    //}
 
-        // 1) Remove the bubble FIRST. Destroy() is applied at the end of the frame, so we can still
-        //    read the bubble's position and settings below.
-        if (popEffectPrefab != null)
-        {
-            Instantiate(popEffectPrefab, bubble.transform.position, bubble.transform.rotation);
-        }
-        Destroy(bubble.gameObject);
-        currentAttackPoint = null;
+    //// Called by AttackPointBase when a bubble was punched from the right direction.
+    //public void OnAttackPointHit(AttackPointBase bubble)
+    //{
+    //    GameManager gm = GameManager.instance;
 
-        // 2) Damage the enemy. Damage comes from ONE place (PlayerParameter.GetCurrentDamage), so the
-        //    fist-bump special automatically makes bubbles hit harder too.
-        float damage = PlayerParameter.instance.GetCurrentDamage() * bubbleDamageScale * bubble.damageMultiplier;
-        gm.enemyFsm.HandleHit(damage, bubble.HitsHead);
+    //    // Ignore hits that land after the fight is over.
+    //    if (gm.State != GameManager.GameState.Playing) return;
 
-        // 3) Queue the next bubble - but only if that hit didn't just win the fight.
-        //    (If it did, GameManager already called EndRound() and there is nothing left to spawn.)
-        if (gm.State == GameManager.GameState.Playing)
-        {
-            respawnRoutine = StartCoroutine(SpawnAfterDelay());
-        }
-    }
+    //    gm.audioManager.Play(0, "hitSfx", false);
 
-    // A coroutine = a function that can pause. "yield return new WaitForSeconds(x)" pauses
-    // it for x seconds and then carries on from the next line, without freezing the game.
-    IEnumerator SpawnAfterDelay()
-    {
-        yield return new WaitForSeconds(respawnDelay);
-        respawnRoutine = null;
-        SpawnAttackPoint();
-    }
+    //    // 1) Remove the bubble FIRST. Destroy() is applied at the end of the frame, so we can still
+    //    //    read the bubble's position and settings below.
+    //    if (popEffectPrefab != null)
+    //    {
+    //        Instantiate(popEffectPrefab, bubble.transform.position, bubble.transform.rotation);
+    //    }
+    //    Destroy(bubble.gameObject);
+    //    currentAttackPoint = null;
+
+    //    // 2) Damage the enemy. Damage comes from ONE place (PlayerParameter.GetCurrentDamage), so the
+    //    //    fist-bump special automatically makes bubbles hit harder too.
+    //    float damage = PlayerParameter.instance.GetCurrentDamage() * bubbleDamageScale * bubble.damageMultiplier;
+    //    gm.enemyFsm.HandleHit(damage, bubble.HitsHead);
+
+    //    // 3) Queue the next bubble - but only if that hit didn't just win the fight.
+    //    //    (If it did, GameManager already called EndRound() and there is nothing left to spawn.)
+    //    if (gm.State == GameManager.GameState.Playing)
+    //    {
+    //        respawnRoutine = StartCoroutine(SpawnAfterDelay());
+    //    }
+    //}
+
+    //// A coroutine = a function that can pause. "yield return new WaitForSeconds(x)" pauses
+    //// it for x seconds and then carries on from the next line, without freezing the game.
+    //IEnumerator SpawnAfterDelay()
+    //{
+    //    yield return new WaitForSeconds(respawnDelay);
+    //    respawnRoutine = null;
+    //    SpawnAttackPoint();
+    //}
+    #endregion
 }

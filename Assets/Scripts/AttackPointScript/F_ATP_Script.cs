@@ -4,8 +4,7 @@ using UnityEngine;
 // All the logic is in AttackPointBase; this script only says which direction is correct.
 // NOTE: the old "detectRange" field is gone (it meant different things in each script).
 // Use "Max Angle" from the base class instead; it's in degrees for every bubble.
-public class F_ATP_Script : AttackPointBase
+public class F_ATP_Script : MonoBehaviour
 {
-    // Vector3.forward = (0, 0, 1) = the bubble's local +Z = away from the player.
-    protected override Vector3 RequiredPunchDirection => Vector3.forward;
+    
 }

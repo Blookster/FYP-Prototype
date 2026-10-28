@@ -256,6 +256,10 @@ PrefabInstance:
       value: dd
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: ff13d0248e315564c9befac949b68ff3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ff13d0248e315564c9befac949b68ff3, type: 3}
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
@@ -266,9 +270,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ff13d0248e315564c9befac949b68ff3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 625247702}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ff13d0248e315564c9befac949b68ff3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 625247704}
   m_SourcePrefab: {fileID: 100100000, guid: ff13d0248e315564c9befac949b68ff3, type: 3}
 --- !u!1 &524993426
 GameObject:
@@ -451,21 +452,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &625247704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 625247700}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5550d813246812f428e0d315c5de0b76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FSM
-  currentEnemyState: 0
-  parameter: {fileID: 0}
-  e_CooldownManager: {fileID: 0}
 --- !u!1 &642499555
 GameObject:
   m_ObjectHideFlags: 0
@@ -672,7 +658,7 @@ MonoBehaviour:
   attackPointManager_P: {fileID: 5864688144890236014, guid: 7915acf6a839d4f43809f2e373721397, type: 3}
   audioManager: {fileID: 8105296203944040083, guid: d9251fb31a74acc408b0d52fe07dc9a1, type: 3}
   attackPointManager: {fileID: 3812697674737800538, guid: 7915acf6a839d4f43809f2e373721397, type: 3}
-  enemyFsm: {fileID: 625247704}
+  enemyFsm: {fileID: 0}
   playerFsm: {fileID: 1777611861}
   recenterPlayer: 1
   engagementDistance: 1.2

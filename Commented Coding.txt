@@ -1,0 +1,25 @@
+Commented Coding
+
+1. Get FSM and P_FSM
+
+//if (enemyFsm == null && EnemyParameter.instance != null) enemyFsm = GameObject.FindWithTag("Enemy").GetComponent<FSM>();
+//if (playerFsm == null && PlayerParameter.instance != null) playerFsm = GameObject.FindWithTag("player").GetComponent<P_FSM>();
+
+//if (enemyFsm == null || playerFsm == null)
+//{
+//    Debug.LogError("[GameManager] Could not find the enemy FSM and/or the player P_FSM. Drag them into the GameManager.");
+//    return;
+//}
+
+2. Get enemy and player health / listen for death
+
+//enemyHealth = enemyFsm.GetComponent<HealthSystem>();
+//playerHealth = playerFsm.GetComponent<HealthSystem>();
+
+//enemyHealth.OnDied += OnEnemyDied;
+//playerHealth.OnDied += OnPlayerDied;
+
+3. Whole Attack Point Manager
+
+4. Attack Point Manager Function in Game Manager
+
