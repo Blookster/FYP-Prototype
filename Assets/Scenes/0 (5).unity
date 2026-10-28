@@ -1233,7 +1233,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   audioManager_P: {fileID: 2003675224797811555, guid: d9251fb31a74acc408b0d52fe07dc9a1, type: 3}
+  attackPointManager_P: {fileID: 0}
   audioManager: {fileID: 0}
+  attackPointManager: {fileID: 0}
+  enemyFsm: {fileID: 0}
+  playerFsm: {fileID: 0}
+  recenterPlayer: 1
+  engagementDistance: 1.2
+  readyDelay: 2
+  victoryPanel: {fileID: 0}
+  defeatPanel: {fileID: 0}
+  restartDelay: 5
 --- !u!1001 &1002039941
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2222,9 +2232,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
   currentHp: 0
-  mixHp: 100
-  enemyHpSlider: {fileID: 0}
-  fsm: {fileID: 0}
+  maxHp: 100
+  hpSlider: {fileID: 0}
 --- !u!114 &1777611860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2243,12 +2252,16 @@ MonoBehaviour:
   rightHand: {fileID: 524993427}
   isSpecialActive: 0
   specialDuration: 10
+  specialDamage: 20
   specialTimer: 0
   fistBumpDistanceThreshold: 0.15
+  specialHandScale: 1.5
   dodgeBackDistance: 0.8
   jumpHeight: 1.5
   blockHandRaiseY: 0.35
   attackExtensionThreshold: 0.4
+  blockDamageMultiplier: 0.2
+  hitStunDuration: 0.5
   inputHandler: {fileID: 0}
   healthSystem: {fileID: 0}
   visualManager: {fileID: 0}
@@ -2258,6 +2271,7 @@ MonoBehaviour:
   originalHandPositions: []
   originalHandY: 0
   isJumping: 0
+  currentDamage: 0
 --- !u!114 &1777611861
 MonoBehaviour:
   m_ObjectHideFlags: 0
