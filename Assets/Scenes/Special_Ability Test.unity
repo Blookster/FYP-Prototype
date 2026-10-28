@@ -273,10 +273,13 @@ MonoBehaviour:
   specialDamage: 10
   specialTimer: 0
   fistBumpDistanceThreshold: 0.15
+  specialHandScale: 1.5
   dodgeBackDistance: 0.8
   jumpHeight: 1.5
   blockHandRaiseY: 0.35
   attackExtensionThreshold: 0.4
+  blockDamageMultiplier: 0.2
+  hitStunDuration: 0.5
   inputHandler: {fileID: 0}
   healthSystem: {fileID: 0}
   visualManager: {fileID: 0}
@@ -287,13 +290,6 @@ MonoBehaviour:
   originalHandY: 0
   isJumping: 0
   currentDamage: 0
-  slamVelocityThreshold: -4
-  slamHeightOffsetFromHead: 0.4
-  simultaneousWindow: 0.25
-  lastLeftHandPos: {x: 0, y: 0, z: 0}
-  lastRightHandPos: {x: 0, y: 0, z: 0}
-  lastLeftSlamTime: -10
-  lastRightSlamTime: -10
 --- !u!114 &125144762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,9 +331,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
   currentHp: 0
-  mixHp: 100
-  enemyHpSlider: {fileID: 0}
-  fsm: {fileID: 0}
+  maxHp: 100
+  hpSlider: {fileID: 0}
 --- !u!54 &125144765
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1645,7 +1640,7 @@ MonoBehaviour:
   _monoscopic: 0
   _sharpenType: 0
   _disableRecording: 0
-  _enableDynamicResolution: 0
+  _enableDynamicResolution: 1
   minDynamicResolutionScale: 1
   maxDynamicResolutionScale: 1
   quest2MinDynamicResolutionScale: 0.7
