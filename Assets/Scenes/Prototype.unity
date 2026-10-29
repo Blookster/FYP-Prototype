@@ -296,12 +296,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 122524081}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 629053246}
+  m_Father: {fileID: 1041151120}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1078,8 +1078,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.1924818, y: 1.1924818, z: 1.1924818}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 122524082}
+  m_Children: []
   m_Father: {fileID: 1651327340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2086,6 +2085,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 863118130}
+  - {fileID: 122524082}
   m_Father: {fileID: 1651327340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2448,8 +2448,8 @@ MonoBehaviour:
   WinPanel: {fileID: 1041151119}
   LosePanel: {fileID: 629053245}
   restartDelay: 5
-  enemyHealth: {fileID: 1579327857}
-  playerHealth: {fileID: 1777611862}
+  enemyHealthscript: {fileID: 0}
+  playerHealthscript: {fileID: 0}
 --- !u!4 &1452826806
 Transform:
   m_ObjectHideFlags: 0
@@ -2945,6 +2945,8 @@ MonoBehaviour:
   currentHp: 0
   maxHp: 100
   hpSlider: {fileID: 2083084800}
+  currentGuard: 0
+  maxGuard: 100
 --- !u!54 &1579327858
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3649,6 +3651,8 @@ MonoBehaviour:
   currentHp: 0
   maxHp: 100
   hpSlider: {fileID: 1938919997}
+  currentGuard: 0
+  maxGuard: 100
 --- !u!114 &1777611860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3670,8 +3674,6 @@ MonoBehaviour:
   specialDamage: 20
   specialTimer: 0
   fistBumpDistanceThreshold: 0.15
-  specialHandScale: 1.5
-  dodgeBackDistance: 0.8
   jumpHeight: 1.5
   blockHandRaiseY: 0.35
   attackExtensionThreshold: 0.4
@@ -3715,6 +3717,8 @@ MonoBehaviour:
   currentHp: 0
   maxHp: 100
   hpSlider: {fileID: 0}
+  currentGuard: 0
+  MaxGuard: 100
 --- !u!1 &1793464356
 GameObject:
   m_ObjectHideFlags: 0
