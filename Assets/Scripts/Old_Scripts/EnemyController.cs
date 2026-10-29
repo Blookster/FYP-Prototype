@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(HealthSystem))]
+[RequireComponent(typeof(E_HealthSystem))]
 [RequireComponent(typeof(FighterVisualManager))]
 public class EnemyController : MonoBehaviour
 {
@@ -53,7 +53,7 @@ public class EnemyController : MonoBehaviour
     public Collider rightHandCollider;
 
     // Modular Component References
-    private HealthSystem healthSystem;
+    private E_HealthSystem healthSystem;
     private FighterVisualManager visualManager;
     private Rigidbody rb;
     private PlayerController playerController;
@@ -90,7 +90,7 @@ public class EnemyController : MonoBehaviour
 
         // Cache components
         rb = GetComponent<Rigidbody>();
-        healthSystem = GetComponent<HealthSystem>();
+        healthSystem = GetComponent<E_HealthSystem>();
         visualManager = GetComponent<FighterVisualManager>();
 
         if (playerTarget != null)

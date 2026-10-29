@@ -53,7 +53,7 @@ public class EnemyParameter : MonoBehaviour
     public Collider rightHandCollider;
 
     // // Modular Component References
-    public HealthSystem healthSystem;
+    public E_HealthSystem healthSystem;
     public FighterVisualManager visualManager;
     public Rigidbody rb;
     public P_FSM p_fsm;
@@ -84,7 +84,7 @@ public class EnemyParameter : MonoBehaviour
     {
         // Initalization of Components
         rb = gameObject.GetComponent<Rigidbody>();
-        healthSystem = gameObject.GetComponent<HealthSystem>();
+        healthSystem = gameObject.GetComponent<E_HealthSystem>();
         visualManager = gameObject.GetComponent<FighterVisualManager>();
     }
 }

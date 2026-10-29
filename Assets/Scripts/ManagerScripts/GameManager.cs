@@ -24,10 +24,12 @@ public class GameManager : MonoBehaviour
     [Header("Manager Prefab")]
     public GameObject audioManager_P;
     public GameObject attackPointManager_P;
+    //public GameObject uiManager_P;
 
     [Header("Manager Component")]
     public AudioManager audioManager;
     public AttackPointManager attackPointManager;
+    //public UIManager uiManager;
 
     [Header("Fighters (auto-found if left empty)")]
     public FSM enemyFsm;
@@ -51,8 +53,8 @@ public class GameManager : MonoBehaviour
     [Tooltip("Seconds after the fight ends before the scene reloads. The scene must be in File > Build Settings. 0 or less = never restart.")]
     public float restartDelay = 5.0f;
 
-    private HealthSystem enemyHealth;
-    private HealthSystem playerHealth;
+    public E_HealthSystem enemyHealth;
+    public P_HealthSystem playerHealth;
 
     private void Awake()
     {
@@ -64,6 +66,7 @@ public class GameManager : MonoBehaviour
     {
         audioManager = Instantiate(audioManager_P).GetComponent<AudioManager>();
         attackPointManager = Instantiate(attackPointManager_P, transform.position, Quaternion.identity).GetComponent<AttackPointManager>();
+        //uiManager = Instantiate(uiManager_P, transform.position, Quaternion.identity).GetComponent<UIManager>();
 
         // ---- Find the two fighters if they weren't dragged in ---------------------------
         // EnemyParameter / PlayerParameter already have static "instance" fields, so we can
@@ -174,4 +177,20 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(restartDelay);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    //public void SetEnemyHealthSystem(E_HealthSystem enemyHealthSystem)
+    //{
+    //    if (enemyHealth == null) enemyHealth = enemyHealthSystem;
+
+    //    else Debug.Log("Had been got enemyHealth");
+        
+    //}
+
+    //public void SetPlayerHealthSystem(P_HealthSystem playerHealthSystem)
+    //{
+    //    if (playerHealth == null) playerHealth = playerHealthSystem;
+
+    //    else Debug.Log("Had been got playerHealth");
+
+    //}
 }

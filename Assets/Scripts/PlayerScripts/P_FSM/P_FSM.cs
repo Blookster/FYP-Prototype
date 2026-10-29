@@ -22,7 +22,7 @@ using System.Collections.Generic;
 //        (before it forced scale to exactly 1.5 and back to exactly 1).
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(HealthSystem))]
+[RequireComponent(typeof(P_HealthSystem))]
 [RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(FighterVisualManager))]
 [RequireComponent(typeof(PlayerParameter))]
@@ -59,7 +59,7 @@ public class P_FSM : MonoBehaviour
         // Cache all modular component references
         playerParameter.rb = GetComponent<Rigidbody>();
         playerParameter.inputHandler = GetComponent<PlayerInputHandler>();
-        playerParameter.healthSystem = GetComponent<HealthSystem>();
+        playerParameter.healthSystem = GetComponent<P_HealthSystem>();
         playerParameter.visualManager = GetComponent<FighterVisualManager>();
 
         playerParameter.xrOrigin = transform.parent;

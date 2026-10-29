@@ -2,6 +2,8 @@ using Meta.WitAi;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 // ============================================================================
 //  AttackPointManager  -  spawns the bubble in front of the player and turns a
@@ -52,6 +54,14 @@ public class AttackPointManager : MonoBehaviour
     [SerializeField]
     int currentSpawnLimit = 0;
 
+    public float roundDuration;
+
+    [SerializeField]
+    float roundTimer;
+
+    [SerializeField]
+    bool isCountingTime;
+
     private void Awake()
     {
         if (instance != null) Destroy(this);
@@ -66,6 +76,7 @@ public class AttackPointManager : MonoBehaviour
     public void BeginRound()
     {
         SpawnAttackPoint();
+        ActivateTimer();
     }
 
     public void SpawnAttackPoint()
@@ -84,15 +95,53 @@ public class AttackPointManager : MonoBehaviour
     {
         if (currentSpawnLimit >= spawnLimit)
         {
-            Debug.Log("Game Over");
-            return;
+            GameManager.instance.enemyHealth.TakeDamage(10);
+            UIManager.instance.UpdateEnemyHpSlider(GameManager.instance.enemyHealth.CurrentHp);
+            DeactateTimer();
         }
         else
         {
-            SpawnAttackPoint();
+            StartCoroutine(I_SpawnAfterDelay());
         }
     }
-    
+
+    IEnumerator I_SpawnAfterDelay()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+        SpawnAttackPoint();
+    }
+
+    private void Update()
+    {
+        if (isCountingTime && roundTimer > 0)
+        {
+            roundTimer -= Time.deltaTime;
+            UIManager.instance.UpdateTimerUI((int)roundTimer);
+        }
+        else if (roundTimer <= 0)
+        {
+            GameManager.instance.playerHealth.TakeDamage(10);
+            UIManager.instance.UpdatePlayerHpSlider(GameManager.instance.playerHealth.CurrentHp);
+            DeactateTimer();
+
+            Destroy(currentAttackPoint);
+
+        }
+    }
+
+    void ActivateTimer()
+    {
+        isCountingTime = true;
+        roundTimer = roundDuration;
+    }
+
+    void DeactateTimer()
+    {
+        UIManager.instance.UpdateTimerUI(0);
+        isCountingTime = false;
+        roundTimer = roundDuration;
+    }
+
 
     #region Old Version
     // Called by the GameManager when the fight begins.

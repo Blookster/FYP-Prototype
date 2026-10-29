@@ -3,21 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-// ============================================================================
-//  HealthSystem  -  ONE health component used by BOTH the player and the enemy.
-// ============================================================================
-// WHAT CHANGED AND WHY
-//  [FIX]  The old version held a reference to the enemy's FSM and called
-//         fsm.TransitionState(Dead) when HP hit 0. The player has no FSM (it has P_FSM),
-//         so the player dying would have crashed with a NullReferenceException.
-//  [NEW]  It now raises EVENTS instead ("OnHealthChanged", "OnDied"). A health component
-//         shouldn't know who is listening - the enemy's FSM, the GameManager, a health
-//         bar, a sound effect can all subscribe without HealthSystem knowing about them.
-//         This idea is called the OBSERVER pattern (or "publish / subscribe").
-//  [NEW]  TakeDamage(amount) takes a POSITIVE number. The old ChangeHealth(-10) meant
-//         "10 damage" only because of the minus sign - easy to get backwards. ChangeHealth
-//         still exists (negative = hurt, positive = heal) so nothing old breaks.
-public class HealthSystem : MonoBehaviour
+public class P_HealthSystem : MonoBehaviour
 {
     [Header("Health")]
     [SerializeField]
@@ -47,9 +33,16 @@ public class HealthSystem : MonoBehaviour
 
     // Awake (not Start) so that currentHp is already correct when OTHER scripts run their
     // Start(). Awake of every object runs before any Start of any object.
+
+    private P_HealthSystem()
+    {
+        
+    }
+
     void Awake()
     {
         currentHp = maxHp;
+        //GameManager.instance.SetPlayerHealthSystem(this);
     }
 
     void Start()

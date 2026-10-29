@@ -4,7 +4,7 @@ using System.Collections;
 
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(HealthSystem))]
+[RequireComponent(typeof(P_HealthSystem))]
 [RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(FighterVisualManager))]
 [RequireComponent(typeof(PlayerParameter))]
@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
         playerParameter.inputHandler = GetComponent<PlayerInputHandler>();
 
-        playerParameter.healthSystem = GetComponent<HealthSystem>();
+        playerParameter.healthSystem = GetComponent<P_HealthSystem>();
 
         playerParameter.visualManager = GetComponent<FighterVisualManager>();
 

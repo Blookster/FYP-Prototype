@@ -28,7 +28,7 @@ public class ATP_Script : MonoBehaviour
     private void Start()
     {
         isActive = false;
-        StartCoroutine(WaitToActive());
+        StartCoroutine(I_WaitToActive());
     }
 
     private void OnTriggerEnter(Collider other)
@@ -126,7 +126,7 @@ public class ATP_Script : MonoBehaviour
         return detectionRange;
     }
 
-    IEnumerator WaitToActive()
+    IEnumerator I_WaitToActive()
     {
         yield return new WaitForSeconds(activeDelay);
         isActive = true;

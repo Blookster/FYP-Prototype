@@ -64,7 +64,7 @@ public class PlayerDebugUI : MonoBehaviour
         if (playerController == null)
             return;
 
-        HealthSystem health = playerController.GetComponent<HealthSystem>();
+        P_HealthSystem health = playerController.GetComponent<P_HealthSystem>();
 
         if (health == null)
             return;

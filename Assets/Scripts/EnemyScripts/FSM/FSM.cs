@@ -57,7 +57,7 @@ public class FSM : MonoBehaviour
         // constructors, so "parameter" has to exist first.
         parameter = gameObject.GetComponent<EnemyParameter>();
         parameter.rb = GetComponent<Rigidbody>();
-        parameter.healthSystem = GetComponent<HealthSystem>();
+        parameter.healthSystem = GetComponent<E_HealthSystem>();
         parameter.visualManager = GetComponent<FighterVisualManager>();
         e_CooldownManager = gameObject.GetComponent<E_CooldownManager>();
 

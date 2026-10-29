@@ -40,7 +40,7 @@ public class PlayerParameter : MonoBehaviour
 
     // Component References (Cached automatically)
     public PlayerInputHandler inputHandler;
-    public HealthSystem healthSystem;
+    public P_HealthSystem healthSystem;
     public FighterVisualManager visualManager;
     public Rigidbody rb;
 
