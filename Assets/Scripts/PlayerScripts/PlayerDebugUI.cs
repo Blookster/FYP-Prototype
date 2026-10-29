@@ -70,7 +70,7 @@ public class PlayerDebugUI : MonoBehaviour
             return;
 
         currentHpText?.SetText(
-            $"Player HP: {health.CurrentHp:0.##} / {health.maxHp:0.##}"
+            $"Player HP: {health.currentHp:0.##} / {health.maxHp:0.##}"
         );
     }
 }

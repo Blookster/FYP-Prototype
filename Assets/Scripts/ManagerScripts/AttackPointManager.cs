@@ -5,21 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// ============================================================================
-//  AttackPointManager  -  spawns the bubble in front of the player and turns a
-//                         successful punch into damage on the enemy.
-// ============================================================================
-// WHAT CHANGED AND WHY
-//  [FIX]  VR DISTANCE PROBLEM, player -> enemy half. The old version spawned the bubble at a
-//         FIXED world point (spawnPoint). In VR the player can stand anywhere in their room,
-//         so a fixed point is sometimes out of reach. Now the bubble is placed RELATIVE TO THE
-//         PLAYER'S HEAD at arm's length, every time. The player never has to reach the enemy.
-//  [NEW]  Damage. Before, a correct punch only played a sound and respawned the bubble.
-//         Now it damages the enemy through FSM.HandleHit (so health bar, hit animation and
-//         the KO state all work exactly like a normal hit).
-//  [NEW]  It no longer spawns a bubble by itself in Start(). The GameManager calls
-//         BeginRound() when the fight actually starts (VR head tracking needs a moment
-//         to deliver its first real position, so spawning at frame 0 puts it in the wrong place).
+
 public class AttackPointManager : MonoBehaviour
 {
     public static AttackPointManager instance;
@@ -28,7 +14,6 @@ public class AttackPointManager : MonoBehaviour
     public List<GameObject> attackPoints = new List<GameObject>();
 
     [Header("Placement (all measured from the player's HEAD)")]
-    [Tooltip("Old fixed spawn point. Only used as a fallback if the player's head can't be found.")]
     public Transform spawnPoint;
 
     [Tooltip("How far in front of the head the bubble appears (metres). Roughly arm's length minus a bit, so the player doesn't have to fully stretch.")]
@@ -44,8 +29,8 @@ public class AttackPointManager : MonoBehaviour
     [Tooltip("Bubble damage = the player's current punch damage x this. (The player's damage already doubles during the fist-bump special.)")]
     public float bubbleDamageScale = 1.5f;
 
-    [Tooltip("Optional: a particle effect prefab to play where the bubble pops.")]
-    public GameObject popEffectPrefab;
+    //[Tooltip("Optional: a particle effect prefab to play where the bubble pops.")]
+    //public GameObject popEffectPrefab;
 
     private GameObject currentAttackPoint;
     private Coroutine respawnRoutine;
@@ -95,8 +80,8 @@ public class AttackPointManager : MonoBehaviour
     {
         if (currentSpawnLimit >= spawnLimit)
         {
-            GameManager.instance.enemyHealth.TakeDamage(10);
-            UIManager.instance.UpdateEnemyHpSlider(GameManager.instance.enemyHealth.CurrentHp);
+            GameManager.instance.enemyHealthscript.TakeDamage(10);
+            UIManager.instance.UpdateEnemyHpSlider(GameManager.instance.enemyHealthscript.currentHp);
             DeactateTimer();
         }
         else
@@ -120,8 +105,8 @@ public class AttackPointManager : MonoBehaviour
         }
         else if (roundTimer <= 0)
         {
-            GameManager.instance.playerHealth.TakeDamage(10);
-            UIManager.instance.UpdatePlayerHpSlider(GameManager.instance.playerHealth.CurrentHp);
+            GameManager.instance.playerHealthscript.TakeDamage(10);
+            UIManager.instance.UpdatePlayerHpSlider(GameManager.instance.playerHealthscript.currentHp);
             DeactateTimer();
 
             Destroy(currentAttackPoint);

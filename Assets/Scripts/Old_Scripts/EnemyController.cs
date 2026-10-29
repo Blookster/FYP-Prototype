@@ -85,8 +85,6 @@ public class EnemyController : MonoBehaviour
         decisionTimer = decisionInterval;
         attackTimer = attackCooldown;
 
-        if (leftHandCollider) leftHandCollider.enabled = false;
-        if (rightHandCollider) rightHandCollider.enabled = false;
 
         // Cache components
         rb = GetComponent<Rigidbody>();
@@ -103,7 +101,7 @@ public class EnemyController : MonoBehaviour
             if (playerController != null) playerTarget = playerController.transform;
         }
 
-
+        FacePlayer();
 
         Debug.Log("[EnemyController] Initialized. PlayerController found: " + (playerController != null));
 
@@ -340,7 +338,6 @@ public class EnemyController : MonoBehaviour
             ExtendHand(punchHand, attackExtension);
         }
 
-        if (punchCollider) punchCollider.enabled = true;
 
         // Keep the punch hitbox active for the attack window.
         // HitReceiver handles the collision if the glove actually connects.
@@ -348,7 +345,6 @@ public class EnemyController : MonoBehaviour
 
         // Phase 2: Recovery
         attackPhase = 2;
-        if (punchCollider) punchCollider.enabled = false;
         RetractHand(punchHand);
         if (punchHand) punchHand.localScale = Vector3.one;
 
@@ -429,17 +425,11 @@ public class EnemyController : MonoBehaviour
         {
             currentEnemyState = FighterState.BeenHit;
 
-            if (leftHandCollider != null)
-                leftHandCollider.enabled = false;
-
-            if (rightHandCollider != null)
-                rightHandCollider.enabled = false;
-
             if (animator != null)
                 animator.SetTrigger("KO");
 
             EnemyDebugUI.enemyStateText = "KO'd";
-            EnemyDebugUI.currentHP = healthSystem.CurrentHp;
+            EnemyDebugUI.currentHP = healthSystem.currentHp;
             return;
         }
 
@@ -468,6 +458,24 @@ public class EnemyController : MonoBehaviour
         }
 
         EnemyDebugUI.enemyStateText = "Been Hit!";
-        EnemyDebugUI.currentHP = healthSystem.CurrentHp;
+        EnemyDebugUI.currentHP = healthSystem.currentHp;
+    }
+
+    private void FacePlayer()
+    {
+        if (playerController == null)
+            return;
+
+        Vector3 direction =
+            playerController.transform.position - transform.position;
+
+        // Keep the enemy upright; only rotate around the Y axis.
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            transform.rotation =
+                Quaternion.LookRotation(direction);
+        }
     }
 }

@@ -3,50 +3,26 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-// ============================================================================
-//  HealthSystem  -  ONE health component used by BOTH the player and the enemy.
-// ============================================================================
-// WHAT CHANGED AND WHY
-//  [FIX]  The old version held a reference to the enemy's FSM and called
-//         fsm.TransitionState(Dead) when HP hit 0. The player has no FSM (it has P_FSM),
-//         so the player dying would have crashed with a NullReferenceException.
-//  [NEW]  It now raises EVENTS instead ("OnHealthChanged", "OnDied"). A health component
-//         shouldn't know who is listening - the enemy's FSM, the GameManager, a health
-//         bar, a sound effect can all subscribe without HealthSystem knowing about them.
-//         This idea is called the OBSERVER pattern (or "publish / subscribe").
-//  [NEW]  TakeDamage(amount) takes a POSITIVE number. The old ChangeHealth(-10) meant
-//         "10 damage" only because of the minus sign - easy to get backwards. ChangeHealth
-//         still exists (negative = hurt, positive = heal) so nothing old breaks.
+
 public class E_HealthSystem : MonoBehaviour
 {
     [Header("Health")]
-    [SerializeField]
-    private float currentHp;
-
-    // [FormerlySerializedAs("mixHp")]: the old field was misspelled "mixHp". If we simply
-    // renamed it, Unity would lose the value you typed in the Inspector (it saves values
-    // by field NAME). This attribute says "when loading, also look for the old name",
-    // so we can fix the typo without losing any scene/prefab data.
-    [FormerlySerializedAs("mixHp")]
+    [SerializeField] public float currentHp;
     public float maxHp = 100.0f;
 
-    [Header("Optional UI - drag a Slider here to get a health bar")]
-    [FormerlySerializedAs("enemyHpSlider")]   // same trick: it's used by the player too now
+    [Header("Health Bar Slider")]
     public Slider hpSlider;
 
-    // "event Action<float, float>" = a list of functions that get called when we say so.
-    // Anyone can write  healthSystem.OnHealthChanged += MyFunction;  to be told about it.
-    // The two floats are (current HP, max HP).
+    [Header("Sheild")]
+    [SerializeField] private float currentGuard;
+    public float maxGuard = 100.0f;
+
     public event Action<float, float> OnHealthChanged;
     public event Action OnDied;
 
-    // Read-only properties: other scripts can LOOK at HP but must go through
-    // TakeDamage / ChangeHealth to change it. (Protects the number from accidental edits.)
-    public float CurrentHp => currentHp;
     public bool IsDead => currentHp <= 0.0f;
+    public bool guardBreak => currentGuard <= 0.0f;
 
-    // Awake (not Start) so that currentHp is already correct when OTHER scripts run their
-    // Start(). Awake of every object runs before any Start of any object.
 
     private E_HealthSystem()
     {
@@ -54,8 +30,9 @@ public class E_HealthSystem : MonoBehaviour
     }
 
     void Awake()
-    {
+    {   
         currentHp = maxHp;
+        currentGuard = maxGuard;
         //GameManager.instance.SetEnemyHealthSystem(this);
     }
 
@@ -67,6 +44,7 @@ public class E_HealthSystem : MonoBehaviour
     // Always pass a positive number. Mathf.Abs makes a wrong-signed call harmless.
     public void TakeDamage(float amount)
     {
+
         ChangeHealth(-Mathf.Abs(amount));
     }
 
@@ -86,6 +64,11 @@ public class E_HealthSystem : MonoBehaviour
         OnHealthChanged?.Invoke(currentHp, maxHp);
 
         if (IsDead) OnDied?.Invoke();
+    }
+
+    public void ChangeSheild(float delta)
+    {
+        //currentGuard - PlayerParameter.atk;
     }
 
     public void ResetHealth()

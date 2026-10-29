@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.AppUI.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,10 +16,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    // An enum is a fixed list of names for a value. Much safer than using ints or strings.
     public enum GameState { Ready, Playing, Victory, Defeat }
 
-    // Public read, private write: other scripts can check State, but only the GameManager changes it.
     public GameState State { get; private set; } = GameState.Ready;
 
     [Header("Manager Prefab")]
@@ -36,25 +35,21 @@ public class GameManager : MonoBehaviour
     public P_FSM playerFsm;
 
     [Header("Fight Setup (VR distance fix)")]
-    [Tooltip("Slide the player's whole rig so their HEAD starts this far from the enemy, wherever they stand in their room. Turn off if you position the player by hand.")]
+
     public bool recenterPlayer = true;
 
-    [Tooltip("Head-to-enemy distance in metres at the start of the fight. Keep it SMALLER than the enemy's 'Punch Reach' or the enemy can never hit you.")]
     public float engagementDistance = 1.2f;
-
     [Tooltip("Seconds to wait after pressing Play before the fight starts. Gives VR head tracking time to settle.")]
     public float readyDelay = 2.0f;
 
     [Header("Game Over")]
-    [Tooltip("Optional: shown on victory (e.g. a world-space canvas that says KO!).")]
-    public GameObject victoryPanel;
-    [Tooltip("Optional: shown on defeat.")]
-    public GameObject defeatPanel;
-    [Tooltip("Seconds after the fight ends before the scene reloads. The scene must be in File > Build Settings. 0 or less = never restart.")]
+    public GameObject WinPanel;
+    public GameObject LosePanel;
+
     public float restartDelay = 5.0f;
 
-    public E_HealthSystem enemyHealth;
-    public P_HealthSystem playerHealth;
+    public E_HealthSystem enemyHealthscript;
+    public P_HealthSystem playerHealthscript;
 
     private void Awake()
     {
@@ -66,6 +61,13 @@ public class GameManager : MonoBehaviour
     {
         audioManager = Instantiate(audioManager_P).GetComponent<AudioManager>();
         attackPointManager = Instantiate(attackPointManager_P, transform.position, Quaternion.identity).GetComponent<AttackPointManager>();
+
+        if (WinPanel != null)
+            WinPanel.SetActive(false);
+
+        if (LosePanel != null)
+            LosePanel.SetActive(false);
+
         //uiManager = Instantiate(uiManager_P, transform.position, Quaternion.identity).GetComponent<UIManager>();
 
         // ---- Find the two fighters if they weren't dragged in ---------------------------
@@ -97,8 +99,8 @@ public class GameManager : MonoBehaviour
     // reference to us (a classic source of "MissingReferenceException" after reloading a scene).
     private void OnDestroy()
     {
-        if (enemyHealth != null) enemyHealth.OnDied -= OnEnemyDied;
-        if (playerHealth != null) playerHealth.OnDied -= OnPlayerDied;
+        if (enemyHealthscript != null) enemyHealthscript.OnDied -= OnEnemyDied;
+        if (playerHealthscript != null) playerHealthscript.OnDied -= OnPlayerDied;
     }
 
     IEnumerator StartFight()
@@ -130,23 +132,16 @@ public class GameManager : MonoBehaviour
 
         Vector3 enemyPos = enemyFsm.transform.position;
 
-        // Which side of the enemy is the player supposed to be on? Use the direction from the
-        // enemy to where you placed the rig in the scene. Flatten (y = 0): we only slide
-        // along the floor, never up or down.
         Vector3 awayFromEnemy = pp.xrOrigin.position - enemyPos;
         awayFromEnemy.y = 0.0f;
-        if (awayFromEnemy.sqrMagnitude < 0.0001f) awayFromEnemy = -enemyFsm.transform.forward; // rig placed exactly on the enemy: fall back to "in front of him"
+        if (awayFromEnemy.sqrMagnitude < 0.0001f) awayFromEnemy = -enemyFsm.transform.forward;
         awayFromEnemy.Normalize();
 
-        // Where the head SHOULD be: engagementDistance metres from the enemy, on the player's side.
         Vector3 targetHead = enemyPos + awayFromEnemy * engagementDistance;
 
-        // How far off is the head right now? (floor plane only)
         Vector3 shift = targetHead - pp.headCamera.position;
         shift.y = 0.0f;
 
-        // Moving the rig parent moves the head, hands and body together. Because we move the
-        // PARENT, the real-world offset between headset and room origin stays intact.
         pp.xrOrigin.position += shift;
 
         Debug.Log("[GameManager] Recentred the player by " + shift.magnitude.ToString("F2") + " m.");
@@ -155,8 +150,8 @@ public class GameManager : MonoBehaviour
     // ------------------------------------------------------------------------------------
     //  ENDING THE GAME
     // ------------------------------------------------------------------------------------
-    void OnEnemyDied()  { EndGame(GameState.Victory, victoryPanel); }
-    void OnPlayerDied() { EndGame(GameState.Defeat, defeatPanel); }
+    void OnEnemyDied()  { EndGame(GameState.Victory, WinPanel); }
+    void OnPlayerDied() { EndGame(GameState.Defeat, LosePanel); }
 
     void EndGame(GameState result, GameObject panel)
     {

@@ -6,33 +6,22 @@ using UnityEngine.UI;
 public class P_HealthSystem : MonoBehaviour
 {
     [Header("Health")]
-    [SerializeField]
-    private float currentHp;
-
-    // [FormerlySerializedAs("mixHp")]: the old field was misspelled "mixHp". If we simply
-    // renamed it, Unity would lose the value you typed in the Inspector (it saves values
-    // by field NAME). This attribute says "when loading, also look for the old name",
-    // so we can fix the typo without losing any scene/prefab data.
-    [FormerlySerializedAs("mixHp")]
+    [SerializeField] public float currentHp;
     public float maxHp = 100.0f;
 
-    [Header("Optional UI - drag a Slider here to get a health bar")]
-    [FormerlySerializedAs("enemyHpSlider")]   // same trick: it's used by the player too now
+    [Header("Health Bar Slider")]
     public Slider hpSlider;
 
-    // "event Action<float, float>" = a list of functions that get called when we say so.
-    // Anyone can write  healthSystem.OnHealthChanged += MyFunction;  to be told about it.
-    // The two floats are (current HP, max HP).
+    [Header("Sheild")]
+    [SerializeField] private float currentGuard;
+    public float MaxGuard = 100.0f;
+
     public event Action<float, float> OnHealthChanged;
     public event Action OnDied;
 
-    // Read-only properties: other scripts can LOOK at HP but must go through
-    // TakeDamage / ChangeHealth to change it. (Protects the number from accidental edits.)
-    public float CurrentHp => currentHp;
     public bool IsDead => currentHp <= 0.0f;
+    public bool guardBreak => currentGuard <= 0.0f;
 
-    // Awake (not Start) so that currentHp is already correct when OTHER scripts run their
-    // Start(). Awake of every object runs before any Start of any object.
 
     private P_HealthSystem()
     {
@@ -42,6 +31,7 @@ public class P_HealthSystem : MonoBehaviour
     void Awake()
     {
         currentHp = maxHp;
+        currentGuard = MaxGuard;
         //GameManager.instance.SetPlayerHealthSystem(this);
     }
 
@@ -53,6 +43,7 @@ public class P_HealthSystem : MonoBehaviour
     // Always pass a positive number. Mathf.Abs makes a wrong-signed call harmless.
     public void TakeDamage(float amount)
     {
+
         ChangeHealth(-Mathf.Abs(amount));
     }
 
