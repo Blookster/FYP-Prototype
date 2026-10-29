@@ -1,8 +1,11 @@
 using UnityEngine;
 using System;
-
+/*
+ * Dodge system is completely abandoned during development
 public class P_DodgeState : P_State
 {
+
+    
     private P_FSM p_fsm;
     private PlayerParameter playerParameter;
 
@@ -22,7 +25,6 @@ public class P_DodgeState : P_State
 
     public void OnUpdate()
     {
-        p_fsm.LeanBack();
         if (!playerParameter.inputHandler.IsDodge)
         {
             p_fsm.P_TransitionState(P_FSM.P_FighterState.Idle);
@@ -38,4 +40,6 @@ public class P_DodgeState : P_State
         Debug.Log("Exit P_Dodge State");
         #endregion
     }
+    
 }
+*/

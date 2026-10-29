@@ -20,11 +20,9 @@ public class PlayerParameter : MonoBehaviour
     public float specialDamage = 20f;
     public float specialTimer;
     public float fistBumpDistanceThreshold = 0.15f;
-    [Tooltip("[NEW] How much bigger the gloves get during the special (1.5 = 50% bigger).")]
-    public float specialHandScale = 1.5f;
+
 
     [Header("Punch-Out Positioning & Movement")]
-    public float dodgeBackDistance = 0.8f;
     public float jumpHeight = 1.5f;
     public float blockHandRaiseY = 0.35f;
     public float attackExtensionThreshold = 0.4f;

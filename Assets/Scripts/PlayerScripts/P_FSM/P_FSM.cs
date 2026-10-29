@@ -34,7 +34,6 @@ public class P_FSM : MonoBehaviour
         Idle,
         Attack,
         Blocking,
-        Dodge,
         BeenHit
     }
 
@@ -79,7 +78,6 @@ public class P_FSM : MonoBehaviour
         P_States.Add(P_FighterState.Idle, new P_IdleState(this));
         P_States.Add(P_FighterState.Attack, new P_AttackState(this));
         P_States.Add(P_FighterState.Blocking, new P_BlockState(this));
-        P_States.Add(P_FighterState.Dodge, new P_DodgeState(this));
         P_States.Add(P_FighterState.BeenHit, new P_BeenHitState(this));
         #endregion
 
@@ -110,7 +108,6 @@ public class P_FSM : MonoBehaviour
         if (P_currentState == P_FighterState.BeenHit) return;
 
         bool wantsBlock = playerParameter.inputHandler.IsBlocking;
-        bool wantsDodge = playerParameter.inputHandler.IsDodge;
 
         // "&& P_currentState != X" = only switch if we aren't ALREADY in X. Otherwise we would
         // re-enter the state every frame (OnEnter would run 72 times a second).
@@ -118,12 +115,7 @@ public class P_FSM : MonoBehaviour
         {
             P_TransitionState(P_FighterState.Blocking);
         }
-        else if (!wantsBlock && wantsDodge && P_currentState != P_FighterState.Dodge)
-        {
-            // Block has priority over dodge (same as your original if / else-if).
-            P_TransitionState(P_FighterState.Dodge);
-        }
-        // Leaving Blocking / Dodge is done by P_BlockState / P_DodgeState themselves, when the button is released.
+
     }
 
     public bool CheckArmExtension()
@@ -150,24 +142,19 @@ public class P_FSM : MonoBehaviour
     {
         playerParameter.isSpecialActive = true;
         playerParameter.specialTimer = playerParameter.specialDuration;
-        Debug.Log("Special Power Activated! Fists are super-sized.");
-        SetHandScale(playerParameter.specialHandScale);
+        Debug.Log("Special Power Activated! damage is increased!.");
+        playerParameter.atk = playerParameter.specialDamage;
+
     }
 
     void DeactivateSpecialPower()
     {
         playerParameter.isSpecialActive = false;
         Debug.Log("Special Power Ended.");
-        SetHandScale(1.0f);
+        playerParameter.atk = 10f;
     }
 
-    // [NEW] Scale each glove to (its original size x multiplier). 1 = normal.
-    // Damage doesn't need touching here: PlayerParameter.GetCurrentDamage() reads isSpecialActive.
-    void SetHandScale(float multiplier)
-    {
-        if (playerParameter.leftHand != null) playerParameter.leftHand.localScale = originalHandScales[0] * multiplier;
-        if (playerParameter.rightHand != null) playerParameter.rightHand.localScale = originalHandScales[1] * multiplier;
-    }
+
 
     void CheckGroundSlamJump()
     {
@@ -238,12 +225,6 @@ public class P_FSM : MonoBehaviour
         }
     }
 
-    public void LeanBack()
-    {
-        Vector3 targetLocalPos = playerParameter.fixedLocalPosition + Vector3.back * playerParameter.dodgeBackDistance;
-        transform.localPosition = Vector3.Lerp(transform.localPosition, targetLocalPos, 10f * Time.deltaTime);
-    }
-
     // Called by the enemy's AttackState when a punch is in reach of the player's head.
     // [CHANGED] Now it really applies damage. It is a chain of "does something save the player?"
     // checks, from most protective to least, and the first one that applies wins.
@@ -262,14 +243,7 @@ public class P_FSM : MonoBehaviour
             return;
         }
 
-        // 4) Dodge button held: zero damage.
-        if (P_currentState == P_FighterState.Dodge)
-        {
-            Debug.Log("Dodged successfully! Zero damage.");
-            return;
-        }
-
-        // 5) Block held: take only a fraction (blockDamageMultiplier, 0.2 = 20%). No stagger.
+        // 4) Block held: take only a fraction (blockDamageMultiplier, 0.2 = 20%). No stagger.
         if (P_currentState == P_FighterState.Blocking)
         {
             float reduced = damageAmount * playerParameter.blockDamageMultiplier;
@@ -278,7 +252,7 @@ public class P_FSM : MonoBehaviour
             return;
         }
 
-        // 6) Nothing saved us: full damage.
+        // 5) Nothing saved us: full damage.
         playerParameter.healthSystem.TakeDamage(damageAmount);
         if (playerParameter.visualManager != null) playerParameter.visualManager.TriggerFlash(Color.red, 0.15f);
 
