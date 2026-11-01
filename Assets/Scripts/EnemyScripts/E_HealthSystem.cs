@@ -7,14 +7,14 @@ using UnityEngine.UI;
 public class E_HealthSystem : MonoBehaviour
 {
     [Header("Health")]
-    [SerializeField] public float currentHp;
+    [SerializeField] public  float currentHp;
     public float maxHp = 100.0f;
 
     [Header("Health Bar Slider")]
     public Slider hpSlider;
 
     [Header("Sheild")]
-    [SerializeField] private float currentGuard;
+    [SerializeField] public  float currentGuard;
     public float maxGuard = 100.0f;
 
     public event Action<float, float> OnHealthChanged;

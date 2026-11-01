@@ -86,10 +86,8 @@ MonoBehaviour:
   bubbleHeightOffset: -0.25
   respawnDelay: 0.8
   bubbleDamageScale: 1.5
-  popEffectPrefab: {fileID: 0}
-  spawnLimit: 5
+  spawnLimit: 10
   currentSpawnLimit: 0
   roundDuration: 20
   roundTimer: 0
   isCountingTime: 0
-  timerText: {fileID: 4421028386734274737, guid: 8d5cc2a74d773dc47bad19dd42289bfd, type: 3}

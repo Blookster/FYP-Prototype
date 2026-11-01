@@ -109,6 +109,7 @@ public class ATP_Script : MonoBehaviour
     void DetectionHit()
     {
         GameManager.instance.audioManager.Play(1, "hitSfx", false);
+        E_HealthSystem.currentGuard -= 10f;
         AttackPointManager.instance.DestroyCurrentATP();
         Debug.Log("Hit!!!");
     }

@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &69031354 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5716039190356841536, guid: b925eeaccfea16544b7c2bfb7cc4e402, type: 3}
+  m_PrefabInstance: {fileID: 8499706067899396368}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &69031355 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 750837913317202934, guid: b925eeaccfea16544b7c2bfb7cc4e402, type: 3}
@@ -1332,8 +1337,8 @@ MonoBehaviour:
   recenterPlayer: 1
   engagementDistance: 1.2
   readyDelay: 2
-  WinPanel: {fileID: 0}
-  LosePanel: {fileID: 0}
+  WinPanel: {fileID: 69031354}
+  LosePanel: {fileID: 2034142299}
   restartDelay: 5
   enemyHealthscript: {fileID: 0}
   playerHealthscript: {fileID: 0}
@@ -1562,9 +1567,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1464723784}
     - target: {fileID: 4408045548944969617, guid: 8dda6ba312a70424da3b3b82f8757168, type: 3}
+      propertyPath: e_HpSlider
+      value: 
+      objectReference: {fileID: 1575798726}
+    - target: {fileID: 4408045548944969617, guid: 8dda6ba312a70424da3b3b82f8757168, type: 3}
       propertyPath: p_HpSlider
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1025233939}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1575,6 +1584,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6728344010515012873, guid: 999b785015f122e4d88cb8bf08ba3f65, type: 3}
   m_PrefabInstance: {fileID: 3475643524755674067}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1025233939 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1672944085313691330, guid: 999b785015f122e4d88cb8bf08ba3f65, type: 3}
+  m_PrefabInstance: {fileID: 3475643524755674067}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!1001 &1027257148
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1813,6 +1833,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7322190251300827444, guid: 5d86c6a4caa18734da876e4f1c3e438a, type: 3}
   m_PrefabInstance: {fileID: 6732589101317668717}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1575798726 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6234942183901566742, guid: 5d86c6a4caa18734da876e4f1c3e438a, type: 3}
+  m_PrefabInstance: {fileID: 6732589101317668717}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!1 &1585553127
 GameObject:
   m_ObjectHideFlags: 0
@@ -2325,6 +2356,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9097716890918671028, guid: 120c5e12d35aa634fabb9e8259815a1b, type: 3}
   m_PrefabInstance: {fileID: 1464723783}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2034142299 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8690195944969650223, guid: 4fc97df2e89ab6946b8029f5d3bfb56e, type: 3}
+  m_PrefabInstance: {fileID: 4492053936450511315}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &2034142300 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5904699130761645767, guid: 4fc97df2e89ab6946b8029f5d3bfb56e, type: 3}
@@ -2697,6 +2733,10 @@ PrefabInstance:
     - target: {fileID: 8690195944969650223, guid: 4fc97df2e89ab6946b8029f5d3bfb56e, type: 3}
       propertyPath: m_Name
       value: LosePanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 8690195944969650223, guid: 4fc97df2e89ab6946b8029f5d3bfb56e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
