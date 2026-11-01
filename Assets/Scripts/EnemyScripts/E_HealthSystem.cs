@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class E_HealthSystem : MonoBehaviour
 {
+    public static E_HealthSystem instance;
+
     [Header("Health")]
     [SerializeField] public  float currentHp;
     public float maxHp = 100.0f;
@@ -33,6 +35,7 @@ public class E_HealthSystem : MonoBehaviour
     {   
         currentHp = maxHp;
         currentGuard = maxGuard;
+
         //GameManager.instance.SetEnemyHealthSystem(this);
     }
 
