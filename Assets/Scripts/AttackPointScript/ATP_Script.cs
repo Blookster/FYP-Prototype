@@ -33,7 +33,7 @@ public class ATP_Script : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "PlayerHand" && isActive == true)
+        if (other.gameObject.tag == "PlayerHand" && isActive == true && other.gameObject.GetComponent<PlayerHandSpeedDetecter>().currentSpeed > 1.0f)
         {
             target = other.gameObject.transform;
 
