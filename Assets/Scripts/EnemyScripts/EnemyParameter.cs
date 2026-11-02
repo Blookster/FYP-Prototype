@@ -74,6 +74,16 @@ public class EnemyParameter : MonoBehaviour
     [Header("Animator & Animations")]
     public Animator animator;
 
+    [Header("Health")]
+    [SerializeField] public float currentHp;
+    public float maxHp = 100.0f;
+
+    [Header("Shield")]
+    [SerializeField] public float currentGuard;
+    public float maxGuard = 100.0f;
+
+    public bool IsDead => currentHp <= 0.0f;
+    public bool guardBreak => currentGuard <= 0.0f;
     void Awake()
     {
         if (instance == null) instance = this;

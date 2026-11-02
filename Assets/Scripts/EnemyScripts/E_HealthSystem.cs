@@ -8,22 +8,17 @@ public class E_HealthSystem : MonoBehaviour
 {
     public static E_HealthSystem instance;
 
-    [Header("Health")]
-    [SerializeField] public  float currentHp;
-    public float maxHp = 100.0f;
+    [Header("References")]
+    public EnemyParameter enemyParameter;
 
     [Header("Health Bar Slider")]
     public Slider hpSlider;
 
-    [Header("Sheild")]
-    [SerializeField] public  float currentGuard;
-    public float maxGuard = 100.0f;
-
     public event Action<float, float> OnHealthChanged;
     public event Action OnDied;
 
-    public bool IsDead => currentHp <= 0.0f;
-    public bool guardBreak => currentGuard <= 0.0f;
+    public bool IsDead => enemyParameter != null ? enemyParameter.IsDead : true;
+    public bool guardBreak => enemyParameter != null ? enemyParameter.guardBreak : true;
 
 
     private E_HealthSystem()
@@ -32,12 +27,23 @@ public class E_HealthSystem : MonoBehaviour
     }
 
     void Awake()
-    {   
-        currentHp = maxHp;
-        currentGuard = maxGuard;
+    {
+        if (instance == null) instance = this;
+        else Destroy(this);
 
-        //GameManager.instance.SetEnemyHealthSystem(this);
+        if (enemyParameter == null)
+        {
+            enemyParameter = GetComponent<EnemyParameter>();
+        }
+
+        if (enemyParameter != null)
+        {
+            enemyParameter.currentHp = enemyParameter.maxHp;
+            enemyParameter.currentGuard = enemyParameter.maxGuard;
+        }
     }
+    //GameManager.instance.SetEnemyHealthSystem(this);
+
 
     void Start()
     {
@@ -54,39 +60,41 @@ public class E_HealthSystem : MonoBehaviour
     // delta < 0 = damage, delta > 0 = healing.
     public void ChangeHealth(float delta)
     {
-        // Dead things stay dead: this also guarantees OnDied can only fire ONCE.
+        if (enemyParameter == null) return;
         if (IsDead) return;
 
-        // Clamp keeps HP between 0 and max so it never goes negative or overheals.
-        currentHp = Mathf.Clamp(currentHp + delta, 0.0f, maxHp);
+        // Modify HP on EnemyParameter
+        enemyParameter.currentHp = Mathf.Clamp(enemyParameter.currentHp + delta, 0.0f, enemyParameter.maxHp);
 
         RefreshUI();
-        Debug.Log(gameObject.name + " HP: " + currentHp + " / " + maxHp);
+        Debug.Log(gameObject.name + " HP: " + enemyParameter.currentHp + " / " + enemyParameter.maxHp);
 
-        // "?." = "only call if someone has subscribed" (avoids a null error when nobody listens).
-        OnHealthChanged?.Invoke(currentHp, maxHp);
+        OnHealthChanged?.Invoke(enemyParameter.currentHp, enemyParameter.maxHp);
 
         if (IsDead) OnDied?.Invoke();
     }
 
     public void ChangeSheild(float delta)
     {
+        if (enemyParameter == null) return;
+        enemyParameter.currentGuard = Mathf.Clamp(enemyParameter.currentGuard + delta, 0.0f, enemyParameter.maxGuard);
         //currentGuard - PlayerParameter.atk;
     }
 
     public void ResetHealth()
     {
-        currentHp = maxHp;
+        if (enemyParameter == null) return;
+        enemyParameter.currentHp = enemyParameter.maxHp;
         RefreshUI();
-        OnHealthChanged?.Invoke(currentHp, maxHp);
+        OnHealthChanged?.Invoke(enemyParameter.currentHp, enemyParameter.maxHp);
     }
 
     // Keeps the Slider in sync. Null-checked so the player can use this component
     // without having a slider at all.
     void RefreshUI()
     {
-        if (hpSlider == null) return;
-        hpSlider.maxValue = maxHp;
-        hpSlider.value = currentHp;
+        if (hpSlider == null || enemyParameter == null) return;
+        hpSlider.maxValue = enemyParameter.maxHp;
+        hpSlider.value = enemyParameter.currentHp;
     }
 }
