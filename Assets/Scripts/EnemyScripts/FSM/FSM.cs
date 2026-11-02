@@ -34,6 +34,7 @@ public enum FighterState
 
 public class FSM : MonoBehaviour
 {
+    public static FSM instance;
     // Declarpation of State Dictionary
     private Dictionary<FighterState, IState> states = new Dictionary<FighterState, IState>();
 
