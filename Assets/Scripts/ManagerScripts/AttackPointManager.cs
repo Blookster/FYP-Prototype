@@ -26,6 +26,8 @@ public class AttackPointManager : MonoBehaviour
     [Tooltip("Seconds between a bubble being popped and the next one appearing.")]
     public float respawnDelay = 0.8f;
 
+    public float nextGameDelay = 1.5f;
+
     [Tooltip("Bubble damage = the player's current punch damage x this. (The player's damage already doubles during the fist-bump special.)")]
     public float bubbleDamageScale = 1.5f;
 
@@ -55,11 +57,13 @@ public class AttackPointManager : MonoBehaviour
 
     private void Start()
     {
-        BeginRound();
+        InitiateNewGame();
+        //StartCoroutine(I_InitiateNewGame(0));
     }
 
-    public void BeginRound()
+    void InitiateNewGame()
     {
+        currentSpawnLimit = 0;
         SpawnAttackPoint();
         ActivateTimer();
     }
@@ -67,25 +71,29 @@ public class AttackPointManager : MonoBehaviour
     public void DestroyCurrentATP()
     {
         Destroy(currentAttackPoint);
-        SpawnNextBall();
+        CheckCurrentSpawnLimit();
     }
 
-    void SpawnNextBall()
+
+    void CheckCurrentSpawnLimit()
     {
         if (currentSpawnLimit >= spawnLimit)
         {
             GameManager.instance.enemyHealthscript.TakeDamage(10);
-            UIManager.instance.UpdateEnemyHpSlider(GameManager.instance.enemyHealthscript.currentHp);
+            UIManager.instance.UpdateEnemyHpSlider(EnemyParameter.instance.currentHp);
+            AudioManager.instance.Play(1, "hpChangeSfx", false);
+
             DeactivateTimer();
 
-            // Start next round after player correctly hit all ATP
-            StartNextRound();
+            //I_InitiateNewGame(nextGameDelay);
+            InitiateNewGame();
         }
         else
         {
             StartCoroutine(I_SpawnAfterDelay());
         }
     }
+
     public void SpawnAttackPoint()
     {
         currentAttackPoint = Instantiate(attackPoints[Random.Range(0, attackPoints.Count)], spawnPoint.transform.position, Quaternion.identity);
@@ -98,6 +106,15 @@ public class AttackPointManager : MonoBehaviour
         SpawnAttackPoint();
     }
 
+    //IEnumerator I_InitiateNewGame(float initiationDelay)
+    //{
+    //    yield return new WaitForSeconds(initiationDelay);
+    //    currentSpawnLimit = 0;
+    //    SpawnAttackPoint();
+    //    ActivateTimer();
+    //    Debug.Log("Done");
+    //}
+
     private void Update()
     {
         if (isCountingTime && roundTimer > 0)
@@ -108,20 +125,15 @@ public class AttackPointManager : MonoBehaviour
         else if (roundTimer <= 0)
         {
             GameManager.instance.playerHealthscript.TakeDamage(10);
-            UIManager.instance.UpdatePlayerHpSlider(GameManager.instance.playerHealthscript.currentHp);
+            AudioManager.instance.Play(1, "hpChangeSfx", false);
+
+            UIManager.instance.UpdatePlayerHpSlider(PlayerParameter.instance.currentHp);
             DeactivateTimer();
 
             Destroy(currentAttackPoint);
 
-            // Start next round after timer countdown over
-            StartNextRound();
+            InitiateNewGame();
         }
-    }
-
-    public void StartNextRound()
-    {
-        currentSpawnLimit = 0;
-        BeginRound();
     }
 
     void ActivateTimer()

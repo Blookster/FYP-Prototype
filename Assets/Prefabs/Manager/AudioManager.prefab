@@ -46,3 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   hitSfx: {fileID: 8300000, guid: 7bcfb800f69278c4f928593db2209855, type: 3}
   missSfx: {fileID: 8300000, guid: 72ffd6d48c32cc04f8385d1b838df710, type: 3}
+  hpChangeSfx: {fileID: 8300000, guid: f82e32dd081265044ad6cf40564f9e21, type: 3}

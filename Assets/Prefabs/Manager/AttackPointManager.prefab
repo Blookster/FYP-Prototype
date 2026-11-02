@@ -88,6 +88,6 @@ MonoBehaviour:
   bubbleDamageScale: 1.5
   spawnLimit: 10
   currentSpawnLimit: 0
-  roundDuration: 20
+  roundDuration: 30
   roundTimer: 0
   isCountingTime: 0

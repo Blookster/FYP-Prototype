@@ -16,11 +16,6 @@ public class UIManager : MonoBehaviour
         else if (instance == null) instance = this;
     }
 
-    private void Start()
-    {
-        //Instantiate(UI, transform.position, Quaternion.identity);
-    }
-
     public void UpdateTimerUI(int time)
     {
         timerText.text = "TImer " + time;
@@ -35,4 +30,12 @@ public class UIManager : MonoBehaviour
     {
         e_HpSlider.value = hp;
     }
+
+    //private void Update()
+    //{
+    //    if (Input.GetKeyDown("S"))
+    //    {
+    //        UpdatePlayerHpSlider(90);
+    //    }
+    //}
 }

@@ -34,7 +34,7 @@ public class PlayerDebugUI : MonoBehaviour
         damageTakenText?.SetText("Damage Taken: 0");
         blockStatusText?.SetText("Block Status: Not Tested");
 
-        RefreshHealth();
+        //RefreshHealth();
     }
 
     // Called by PlayerController whenever an attack hits the player.
@@ -55,22 +55,22 @@ public class PlayerDebugUI : MonoBehaviour
             $"Damage Taken: {damageTaken:0.##}"
         );
 
-        RefreshHealth();
+        //RefreshHealth();
     }
 
     // Update the displayed HP using the player's HealthSystem.
-    public void RefreshHealth()
-    {
-        if (playerController == null)
-            return;
+    //public void RefreshHealth()
+    //{
+    //    if (playerController == null)
+    //        return;
 
-        P_HealthSystem health = playerController.GetComponent<P_HealthSystem>();
+    //    P_HealthSystem health = playerController.GetComponent<P_HealthSystem>();
 
-        if (health == null)
-            return;
+    //    if (health == null)
+    //        return;
 
-        currentHpText?.SetText(
-            $"Player HP: {health.currentHp:0.##} / {health.maxHp:0.##}"
-        );
-    }
+    //    currentHpText?.SetText(
+    //        $"Player HP: {health.currentHp:0.##} / {health.maxHp:0.##}"
+    //    );
+    //}
 }

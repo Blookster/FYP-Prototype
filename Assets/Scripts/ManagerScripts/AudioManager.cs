@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour
     List<AudioSource> audios = new List<AudioSource>();
     public AudioClip hitSfx;
     public AudioClip missSfx;
+    public AudioClip hpChangeSfx;
 
     private void Awake()
     {
@@ -46,6 +47,9 @@ public class AudioManager : MonoBehaviour
 
             case "missSfx":
             return missSfx;
+
+            case "hpChangeSfx":
+            return hpChangeSfx;
 
             default:
             Debug.LogError("Cannot find Sfx");

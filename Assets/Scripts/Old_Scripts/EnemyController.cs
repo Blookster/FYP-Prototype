@@ -429,7 +429,7 @@ public class EnemyController : MonoBehaviour
                 animator.SetTrigger("KO");
 
             EnemyDebugUI.enemyStateText = "KO'd";
-            EnemyDebugUI.currentHP = healthSystem.currentHp;
+            EnemyDebugUI.currentHP = EnemyParameter.instance.currentHp;
             return;
         }
 
@@ -458,7 +458,7 @@ public class EnemyController : MonoBehaviour
         }
 
         EnemyDebugUI.enemyStateText = "Been Hit!";
-        EnemyDebugUI.currentHP = healthSystem.currentHp;
+        EnemyDebugUI.currentHP = EnemyParameter.instance.currentHp;
     }
 
     private void FacePlayer()

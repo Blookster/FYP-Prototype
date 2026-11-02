@@ -23,3 +23,39 @@ Commented Coding
 
 4. Attack Point Manager Function in Game Manager
 
+5. RefreshHealth in PlayerDebugUI
+
+//public void RefreshHealth()
+//{
+//    if (playerController == null)
+//        return;
+
+//    P_HealthSystem health = playerController.GetComponent<P_HealthSystem>();
+
+//    if (health == null)
+//        return;
+
+//    currentHpText?.SetText(
+//        $"Player HP: {health.currentHp:0.##} / {health.maxHp:0.##}"
+//    );
+//}
+
+6. Enemy currentGuard in ATP_Script
+
+//if(EnemyParameter.instance.currentGuard > 0f)
+//{
+//    EnemyParameter.instance.currentGuard -= 10f;
+
+//    if (EnemyParameter.instance.currentGuard <= 0f)
+//    {
+//        EnemyParameter.instance.currentGuard = 0f;
+//        Debug.Log("Guard Break!");
+//    }
+//}
+//else
+//{
+//    EnemyParameter.instance.currentHp -= 10f;
+//    Debug.Log("Guard is broken, Enemy HP is being hit.");
+//}
+
+

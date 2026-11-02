@@ -108,30 +108,31 @@ public class ATP_Script : MonoBehaviour
 
     void DetectionHit()
     {
-        GameManager.instance.audioManager.Play(1, "hitSfx", false);
+        GameManager.instance.audioManager.Play(0, "hitSfx", false);
         
-        if(E_HealthSystem.instance.currentGuard > 0f)
-        {
-            E_HealthSystem.instance.currentGuard -= 10f;
+        //if(EnemyParameter.instance.currentGuard > 0f)
+        //{
+        //    EnemyParameter.instance.currentGuard -= 10f;
 
-            if (E_HealthSystem.instance.currentGuard <= 0f)
-            {
-                E_HealthSystem.instance.currentGuard = 0f;
-                Debug.Log("Guard Break!");
-            }
-        }
-        else
-        {
-            E_HealthSystem.instance.currentHp -= 10f;
-            Debug.Log("Guard is broken, Enemy HP is being hit.");
-        }
-            AttackPointManager.instance.DestroyCurrentATP();
+        //    if (EnemyParameter.instance.currentGuard <= 0f)
+        //    {
+        //        EnemyParameter.instance.currentGuard = 0f;
+        //        Debug.Log("Guard Break!");
+        //    }
+        //}
+        //else
+        //{
+        //    EnemyParameter.instance.currentHp -= 10f;
+        //    Debug.Log("Guard is broken, Enemy HP is being hit.");
+        //}
+
+        AttackPointManager.instance.DestroyCurrentATP();
         Debug.Log("Hit!!!");
     }
 
     void DetectionMiss()
     {
-        GameManager.instance.audioManager.Play(1, "missSfx", false);
+        GameManager.instance.audioManager.Play(0, "missSfx", false);
         Debug.Log("Miss!!!");
     }
 

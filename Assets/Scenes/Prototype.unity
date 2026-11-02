@@ -894,7 +894,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &464074688
 MonoBehaviour:
@@ -2358,7 +2358,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &1309713386
 MonoBehaviour:
@@ -2942,11 +2942,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4c0deb70e0306841855e71b7e03e24a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
-  currentHp: 0
-  maxHp: 100
+  enemyParameter: {fileID: 0}
   hpSlider: {fileID: 2083084800}
-  currentGuard: 0
-  maxGuard: 100
 --- !u!54 &1579327858
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3648,11 +3645,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4c0deb70e0306841855e71b7e03e24a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
-  currentHp: 0
-  maxHp: 100
+  enemyParameter: {fileID: 0}
   hpSlider: {fileID: 1938919997}
-  currentGuard: 0
-  maxGuard: 100
 --- !u!114 &1777611860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3666,6 +3660,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerParameter
   atk: 10
+  currentHp: 0
+  maxHp: 100
+  currentGuard: 0
+  maxGuard: 100
   headCamera: {fileID: 6252985296434040916}
   leftHand: {fileID: 464074691}
   rightHand: {fileID: 1309713389}
@@ -3714,11 +3712,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f9b30f90a890143bed79f9cb312881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::P_HealthSystem
-  currentHp: 0
-  maxHp: 100
+  playerParameter: {fileID: 0}
   hpSlider: {fileID: 0}
-  currentGuard: 0
-  MaxGuard: 100
 --- !u!1 &1793464356
 GameObject:
   m_ObjectHideFlags: 0
