@@ -9,6 +9,17 @@ public class PlayerParameter : MonoBehaviour
     [Header("Player ATK")]
     public float atk = 10.0f;
 
+    [Header("Health")]
+    [SerializeField] public float currentHp;
+    public float maxHp = 100.0f;
+
+    [Header("Shield")]
+    [SerializeField] public float currentGuard;
+    public float maxGuard = 100.0f;
+
+    public bool IsDead => currentHp <= 0.0f;
+    public bool guardBreak => currentGuard <= 0.0f;
+
     [Header("Tracking References")]
     public Transform headCamera;
     public Transform leftHand;

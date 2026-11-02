@@ -5,23 +5,17 @@ using UnityEngine.UI;
 
 public class P_HealthSystem : MonoBehaviour
 {
-    [Header("Health")]
-    [SerializeField] public  float currentHp;
-    public float maxHp = 100.0f;
+    [Header("References")]
+    public PlayerParameter playerParameter;
 
     [Header("Health Bar Slider")]
     public Slider hpSlider;
 
-    [Header("Sheild")]
-    [SerializeField] public  float currentGuard;
-    public float MaxGuard = 100.0f;
-
     public event Action<float, float> OnHealthChanged;
     public event Action OnDied;
 
-    public bool IsDead => currentHp <= 0.0f;
-    public bool guardBreak => currentGuard <= 0.0f;
-
+    public bool IsDead => playerParameter != null ? playerParameter.IsDead : true;
+    public bool guardBreak => playerParameter != null ? playerParameter.guardBreak : true;
 
     private P_HealthSystem()
     {
@@ -30,8 +24,17 @@ public class P_HealthSystem : MonoBehaviour
 
     void Awake()
     {
-        currentHp = maxHp;
-        currentGuard = MaxGuard;
+        if (playerParameter == null)
+        {
+            playerParameter = GetComponent<PlayerParameter>();
+        }
+
+        // Initialize health and shield on PlayerParameter
+        if (playerParameter != null)
+        {
+            playerParameter.currentHp = playerParameter.maxHp;
+            playerParameter.currentGuard = playerParameter.maxGuard;
+        }
         //GameManager.instance.SetPlayerHealthSystem(this);
     }
 
@@ -50,34 +53,37 @@ public class P_HealthSystem : MonoBehaviour
     // delta < 0 = damage, delta > 0 = healing.
     public void ChangeHealth(float delta)
     {
+        if (playerParameter == null) return;
         // Dead things stay dead: this also guarantees OnDied can only fire ONCE.
         if (IsDead) return;
 
         // Clamp keeps HP between 0 and max so it never goes negative or overheals.
-        currentHp = Mathf.Clamp(currentHp + delta, 0.0f, maxHp);
+        playerParameter.currentHp = Mathf.Clamp(playerParameter.currentHp + delta, 0.0f, playerParameter.maxHp);
 
         RefreshUI();
-        Debug.Log(gameObject.name + " HP: " + currentHp + " / " + maxHp);
+        Debug.Log(gameObject.name + " HP: " + playerParameter.currentHp + " / " + playerParameter.maxHp);
 
         // "?." = "only call if someone has subscribed" (avoids a null error when nobody listens).
-        OnHealthChanged?.Invoke(currentHp, maxHp);
+        OnHealthChanged?.Invoke(playerParameter.currentHp, playerParameter.maxHp);
 
         if (IsDead) OnDied?.Invoke();
     }
 
     public void ResetHealth()
     {
-        currentHp = maxHp;
+        if (playerParameter == null) return;
+        playerParameter.currentHp = playerParameter.maxHp;
         RefreshUI();
-        OnHealthChanged?.Invoke(currentHp, maxHp);
+        OnHealthChanged?.Invoke(playerParameter.currentHp, playerParameter.maxHp);
     }
+
 
     // Keeps the Slider in sync. Null-checked so the player can use this component
     // without having a slider at all.
     void RefreshUI()
     {
-        if (hpSlider == null) return;
-        hpSlider.maxValue = maxHp;
-        hpSlider.value = currentHp;
+        if (hpSlider == null || playerParameter == null) return;
+        hpSlider.maxValue = playerParameter.maxHp;
+        hpSlider.value = playerParameter.currentHp;
     }
 }
