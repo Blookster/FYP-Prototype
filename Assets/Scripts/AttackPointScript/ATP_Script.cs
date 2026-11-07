@@ -1,103 +1,88 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ATP_Script : MonoBehaviour
 {
     public string atpTypeName;
 
-    Transform target;
-
     [SerializeField]
-    bool isActive;
+    private bool isActive;
+    private bool isConsumed = false;
 
-    public float activeDelay;
+    public float activeDelay = 0.1f;
 
-    // Declarpation of DetectionRanges Dictionary
-    Dictionary<string, float> detectionRanges = new Dictionary<string, float>();
-
-    private void Awake()
-    {
-        // Initalization of DetectionRanges Dictionary
-        detectionRanges.Add("F_ATP", 140.0f);
-        detectionRanges.Add("L_ATP", 140.0f);
-        detectionRanges.Add("R_ATP", 50.0f);
-        detectionRanges.Add("B_ATP", 140.0f);
-    }
+    [Header("Detection Tuning")]
+    [Tooltip("Max angle difference (in degrees) allowed between punch velocity and required direction. 65-75 feels responsive in VR.")]
+    public float maxAllowedAngle = 70.0f;
+    public float minPunchSpeed = 0.8f;
 
     private void Start()
     {
         isActive = false;
+        isConsumed = false;
         StartCoroutine(I_WaitToActive());
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "PlayerHand" && isActive == true && other.gameObject.GetComponent<PlayerHandSpeedDetecter>().currentSpeed > 1.0f)
-        {
-            target = other.gameObject.transform;
-
-            switch (atpTypeName)
-            {
-                case ("F_ATP"):
-                    FrontDetection(target);
-                    break;
-                case ("L_ATP"):
-                    LeftDetection(target);
-                    break;
-                case ("R_ATP"):
-                    RightDetection(target);
-                    break;
-                case ("B_ATP"):
-                    BottomDetection(target);
-                    break;
-                default:
-                    Debug.Log("Type of ATP not found!!!");
-                    break;
-            }
-        }
+        TryDetectPunch(other);
     }
 
-    void FrontDetection(Transform target)
+    // Catches punches if the glove was already overlapping when activeDelay finished
+    private void OnTriggerStay(Collider other)
     {
-        if (Vector3.Angle(transform.forward, target.position - transform.position) > GetDetectionRange())
-        {
-            DetectionHit();
-        }
-        else
-        {
-            DetectionMiss();
-        }
+        TryDetectPunch(other);
     }
 
-    void LeftDetection(Transform target)
+    private void TryDetectPunch(Collider other)
     {
-        if (Vector3.Angle(transform.right, target.position - transform.position) > GetDetectionRange())
-        {
-            DetectionHit();
-        }
-        else
-        {
-            DetectionMiss();
-        }
-    }
+        if (!isActive || isConsumed) return;
+        if (!other.CompareTag("PlayerHand")) return;
 
-    void RightDetection(Transform target)
-    {
-        if (Vector3.Angle(transform.right, target.position - transform.position) < GetDetectionRange())
+        // Attach or grab HandVelocityTracker for smoothed VR velocity + direction
+        HandVelocityTracker tracker = other.GetComponentInParent<HandVelocityTracker>();
+        if (tracker == null)
         {
-            DetectionHit();
+            tracker = other.gameObject.AddComponent<HandVelocityTracker>();
         }
-        else
-        {
-            DetectionMiss();
-        }
-    }
 
-    void BottomDetection(Transform target)
-    {
-        if (Vector3.Angle(transform.up, target.position - transform.position) > GetDetectionRange())
+        // Fallback to PlayerHandSpeedDetecter if tracker just attached this frame
+        PlayerHandSpeedDetecter speedDetector = other.GetComponent<PlayerHandSpeedDetecter>();
+        float speed = tracker.IsReady ? tracker.Speed : (speedDetector != null ? speedDetector.currentSpeed : 0f);
+
+        if (speed < minPunchSpeed) return;
+
+        // Calculate actual movement direction of the glove (or entry vector on frame 1)
+        Vector3 punchDir = tracker.IsReady && tracker.Velocity.sqrMagnitude > 0.001f
+            ? tracker.Velocity.normalized
+            : (transform.position - other.transform.position).normalized;
+
+        // Expected punch travel direction based on ATP type
+        Vector3 requiredDir;
+        switch (atpTypeName)
         {
+            case "F_ATP": // Straight punch into the target (+forward)
+                requiredDir = transform.forward;
+                break;
+            case "L_ATP": // Punch coming from the left side moving right (+right)
+                requiredDir = transform.right;
+                break;
+            case "R_ATP": // Punch coming from the right side moving left (-right)
+                requiredDir = -transform.right;
+                break;
+            case "B_ATP": // Uppercut coming from the bottom moving up (+up)
+                requiredDir = transform.up;
+                break;
+            default:
+                Debug.LogWarning("Type of ATP not found: " + atpTypeName);
+                return;
+        }
+
+        float angle = Vector3.Angle(requiredDir, punchDir);
+
+        if (angle <= maxAllowedAngle)
+        {
+            isConsumed = true;
             DetectionHit();
         }
         else
@@ -109,23 +94,6 @@ public class ATP_Script : MonoBehaviour
     void DetectionHit()
     {
         GameManager.instance.audioManager.Play(0, "hitSfx", false);
-        
-        //if(EnemyParameter.instance.currentGuard > 0f)
-        //{
-        //    EnemyParameter.instance.currentGuard -= 10f;
-
-        //    if (EnemyParameter.instance.currentGuard <= 0f)
-        //    {
-        //        EnemyParameter.instance.currentGuard = 0f;
-        //        Debug.Log("Guard Break!");
-        //    }
-        //}
-        //else
-        //{
-        //    EnemyParameter.instance.currentHp -= 10f;
-        //    Debug.Log("Guard is broken, Enemy HP is being hit.");
-        //}
-
         AttackPointManager.instance.DestroyCurrentATP();
         Debug.Log("Hit!!!");
     }
@@ -134,13 +102,6 @@ public class ATP_Script : MonoBehaviour
     {
         GameManager.instance.audioManager.Play(0, "missSfx", false);
         Debug.Log("Miss!!!");
-    }
-
-    float GetDetectionRange()
-    {
-        float detectionRange = detectionRanges[atpTypeName];
-
-        return detectionRange;
     }
 
     IEnumerator I_WaitToActive()
