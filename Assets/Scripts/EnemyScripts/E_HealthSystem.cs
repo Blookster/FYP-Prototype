@@ -53,8 +53,33 @@ public class E_HealthSystem : MonoBehaviour
     // Always pass a positive number. Mathf.Abs makes a wrong-signed call harmless.
     public void TakeDamage(float amount)
     {
+        float damage = Mathf.Abs(amount);
+        if (enemyParameter == null || IsDead) return;
 
-        ChangeHealth(-Mathf.Abs(amount));
+        // 1. Drain Guard first if the enemy still has guard left
+        if (enemyParameter.currentGuard > 0f)
+        {
+            float guardDamage = Mathf.Min(enemyParameter.currentGuard, damage);
+            ChangeSheild(-guardDamage);
+            damage -= guardDamage;
+
+            Debug.Log($"Enemy Guard Hit! Guard remaining: {enemyParameter.currentGuard} / {enemyParameter.maxGuard}");
+
+            if (enemyParameter.currentGuard <= 0f)
+            {
+                Debug.Log("Enemy Guard Broken!");
+            }
+        }
+
+        // 2. Any remaining damage goes to HP once Guard is 0
+        if (damage > 0f && enemyParameter.currentGuard <= 0f)
+        {
+            ChangeHealth(-damage);
+            if (UIManager.instance != null)
+            {
+                UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
+            }
+        }
     }
 
     // delta < 0 = damage, delta > 0 = healing.
