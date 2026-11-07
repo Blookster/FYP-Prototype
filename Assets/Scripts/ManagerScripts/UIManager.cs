@@ -7,8 +7,13 @@ public class UIManager : MonoBehaviour
     public static UIManager instance;
 
     public TMP_Text timerText;
-    public Slider p_HpSlider;
-    public Slider e_HpSlider;
+    public Slider p_HpSlider; //player
+    public Slider e_HpSlider; //enemy
+
+    [Header("Guard Sliders")]
+    public Slider p_GuardSlider;
+    public Slider e_GuardSlider;
+
 
     private void Awake()
     {
@@ -28,14 +33,16 @@ public class UIManager : MonoBehaviour
 
     public void UpdateEnemyHpSlider(float hp)
     {
-        e_HpSlider.value = hp;
+        if (e_HpSlider != null) e_HpSlider.value = hp;
     }
 
-    //private void Update()
-    //{
-    //    if (Input.GetKeyDown("S"))
-    //    {
-    //        UpdatePlayerHpSlider(90);
-    //    }
-    //}
+    public void UpdateEnemyGuardSlider(float guard)
+    {
+        if (e_GuardSlider != null) e_GuardSlider.value = guard;
+    }
+
+    public void UpdatePlayerGuardSlider(float guard)
+    {
+        if (p_GuardSlider != null) p_GuardSlider.value = guard;
+    }
 }
