@@ -1138,7 +1138,7 @@ MonoBehaviour:
   rightHand: {fileID: 3089442815181650223, guid: 20e3ed345e4f7f9408a48cd6c25d4503, type: 3}
   leftHandCollider: {fileID: 426943741577422233, guid: 46467a3245fa6cc48ab4b8ea1e48b724, type: 3}
   rightHandCollider: {fileID: 3298294361249634018, guid: 20e3ed345e4f7f9408a48cd6c25d4503, type: 3}
-  healthSystem: {fileID: 0}
+  healthSystem: {fileID: 955650270}
   visualManager: {fileID: 0}
   rb: {fileID: 0}
   p_fsm: {fileID: 0}
@@ -1165,19 +1165,6 @@ GameObject:
   m_PrefabInstance: {fileID: 1002039941}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &955911453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 955911447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2945a96eb02ca5241a49a83d50c692e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LockPosScript
-  headSet: {fileID: 955911447}
---- !u!114 &955911459
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1350,9 +1337,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 166499277535390479, guid: c2e3873a8c22b7d4cab8b801e220ec8e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 955911453}
-    - targetCorrespondingSourceObject: {fileID: 166499277535390479, guid: c2e3873a8c22b7d4cab8b801e220ec8e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 955911459}
     - targetCorrespondingSourceObject: {fileID: 2678735391703191204, guid: c2e3873a8c22b7d4cab8b801e220ec8e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1002039943}
@@ -1810,7 +1794,7 @@ GameObject:
   - component: {fileID: 1585553129}
   - component: {fileID: 1585553128}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2114,10 +2098,10 @@ MonoBehaviour:
   blockDamageMultiplier: 0.2
   hitStunDuration: 0.5
   inputHandler: {fileID: 0}
-  healthSystem: {fileID: 0}
+  healthSystem: {fileID: 1777611862}
   visualManager: {fileID: 0}
-  rb: {fileID: 0}
-  xrOrigin: {fileID: 0}
+  rb: {fileID: 1777611855}
+  xrOrigin: {fileID: 120328642}
   fixedLocalPosition: {x: 0, y: 0, z: 0}
   originalHandPositions: []
   originalHandY: 0
@@ -2135,7 +2119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52c0a38ff16e84cb3bc92375c60a1d2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::P_FSM
-  playerParameter: {fileID: 0}
+  playerParameter: {fileID: 1777611860}
   P_currentState: 0
 --- !u!114 &1777611862
 MonoBehaviour:
@@ -2149,8 +2133,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f9b30f90a890143bed79f9cb312881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::P_HealthSystem
-  playerParameter: {fileID: 0}
-  hpSlider: {fileID: 0}
+  playerParameter: {fileID: 1777611860}
+  hpSlider: {fileID: 1025233939}
 --- !u!224 &1854720752 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9097716890918671028, guid: 120c5e12d35aa634fabb9e8259815a1b, type: 3}
