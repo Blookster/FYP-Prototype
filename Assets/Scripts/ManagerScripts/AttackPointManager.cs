@@ -77,10 +77,11 @@ public class AttackPointManager : MonoBehaviour
 
     void CheckCurrentSpawnLimit()
     {
+        // Deal damage on every bubble hit (drains Guard first, then HP once broken)
         float damage = (PlayerParameter.instance != null) ? PlayerParameter.instance.GetCurrentDamage() : 10f;
-
-        // Deal damage (drains Guard first, then HP) on every successful bubble hit
         GameManager.instance.enemyHealthscript.TakeDamage(damage);
+
+        UIManager.instance.UpdateEnemyGuardSlider(EnemyParameter.instance.currentGuard);
         UIManager.instance.UpdateEnemyHpSlider(EnemyParameter.instance.currentHp);
         AudioManager.instance.Play(1, "hpChangeSfx", false);
 
