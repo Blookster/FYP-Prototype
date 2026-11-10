@@ -9,10 +9,6 @@ public class E_HealthSystem : MonoBehaviour
     [Header("References")]
     public EnemyParameter enemyParameter;
 
-    [Header("UI Sliders")]
-    public Slider hpSlider;
-    public Slider guardSlider;
-
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnGuardChanged;
     public event Action OnGuardBroken;
@@ -127,13 +123,8 @@ public class E_HealthSystem : MonoBehaviour
         {
             if (UIManager.instance.e_HpSlider != null)
             {
-                UIManager.instance.e_HpSlider.maxValue = enemyParameter.maxHp;
+                if (enemyParameter == null || UIManager.instance == null) return;
                 UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
-            }
-
-            if (UIManager.instance.e_GuardSlider != null)
-            {
-                UIManager.instance.e_GuardSlider.maxValue = enemyParameter.maxGuard;
                 UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
             }
         }
