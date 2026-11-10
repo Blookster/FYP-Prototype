@@ -1103,6 +1103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::E_HealthSystem
   enemyParameter: {fileID: 955650272}
   hpSlider: {fileID: 1575798726}
+  guardSlider: {fileID: 0}
 --- !u!114 &955650272
 MonoBehaviour:
   m_ObjectHideFlags: 0

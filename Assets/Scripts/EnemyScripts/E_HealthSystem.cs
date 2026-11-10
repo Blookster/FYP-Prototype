@@ -31,7 +31,7 @@ public class E_HealthSystem : MonoBehaviour
             enemyParameter = GetComponent<EnemyParameter>();
         }
 
-        if (enemyParameter != null)
+        else if (enemyParameter != null)
         {
             enemyParameter.currentHp = enemyParameter.maxHp;
             enemyParameter.currentGuard = enemyParameter.maxGuard;
