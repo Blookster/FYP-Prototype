@@ -81,8 +81,6 @@ public class AttackPointManager : MonoBehaviour
         float damage = (PlayerParameter.instance != null) ? PlayerParameter.instance.GetCurrentDamage() : 10f;
         GameManager.instance.enemyHealthscript.TakeDamage(damage);
 
-        UIManager.instance.UpdateEnemyGuardSlider(EnemyParameter.instance.currentGuard);
-        UIManager.instance.UpdateEnemyHpSlider(EnemyParameter.instance.currentHp);
         AudioManager.instance.Play(1, "hpChangeSfx", false);
 
         if (currentSpawnLimit >= spawnLimit)
