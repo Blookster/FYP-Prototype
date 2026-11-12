@@ -39,23 +39,13 @@ public class ATP_Script : MonoBehaviour
         if (!isActive || isConsumed) return;
         if (!other.CompareTag("PlayerHand")) return;
 
-        // Attach or grab HandVelocityTracker for smoothed VR velocity + direction
-        HandVelocityTracker tracker = other.GetComponentInParent<HandVelocityTracker>();
-        if (tracker == null)
-        {
-            tracker = other.gameObject.AddComponent<HandVelocityTracker>();
-        }
-
-        // Fallback to PlayerHandSpeedDetecter if tracker just attached this frame
         PlayerHandSpeedDetecter speedDetector = other.GetComponent<PlayerHandSpeedDetecter>();
-        float speed = tracker.IsReady ? tracker.Speed : (speedDetector != null ? speedDetector.currentSpeed : 0f);
+        float speed = speedDetector != null ? speedDetector.currentSpeed : 0f;
 
         if (speed < minPunchSpeed) return;
 
-        // Calculate actual movement direction of the glove (or entry vector on frame 1)
-        Vector3 punchDir = tracker.IsReady && tracker.Velocity.sqrMagnitude > 0.001f
-            ? tracker.Velocity.normalized
-            : (transform.position - other.transform.position).normalized;
+        // Direction from the glove's entry point toward the center of the ATP bubble
+        Vector3 punchDir = (transform.position - other.transform.position).normalized;
 
         // Expected punch travel direction based on ATP type
         Vector3 requiredDir;
