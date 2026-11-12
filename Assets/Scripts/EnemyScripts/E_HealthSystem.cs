@@ -103,30 +103,9 @@ public class E_HealthSystem : MonoBehaviour
 
     void RefreshUI()
     {
-        if (enemyParameter == null) return;
+        if (enemyParameter == null || UIManager.instance == null) return;
 
-        // Update direct sliders on E_HealthSystem if assigned
-        if (hpSlider != null)
-        {
-            hpSlider.maxValue = enemyParameter.maxHp;
-            hpSlider.value = enemyParameter.currentHp;
-        }
-
-        if (guardSlider != null)
-        {
-            guardSlider.maxValue = enemyParameter.maxGuard;
-            guardSlider.value = enemyParameter.currentGuard;
-        }
-
-        // Also keep UIManager sliders in sync
-        if (UIManager.instance != null)
-        {
-            if (UIManager.instance.e_HpSlider != null)
-            {
-                if (enemyParameter == null || UIManager.instance == null) return;
-                UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
-                UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
-            }
-        }
+        UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
+        UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
     }
 }
