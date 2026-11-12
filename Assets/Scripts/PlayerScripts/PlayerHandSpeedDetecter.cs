@@ -3,7 +3,12 @@ using UnityEngine;
 public class PlayerHandSpeedDetecter : MonoBehaviour
 {
     public float currentSpeed;
-    Vector3 lastPos;
+    public Vector3 currentVelocity;
+
+    [Range(0.05f, 1.0f)]
+    public float smoothing = 0.5f;
+
+    private Vector3 lastPos;
 
     private void Start()
     {
@@ -15,10 +20,14 @@ public class PlayerHandSpeedDetecter : MonoBehaviour
         lastPos = transform.position;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        float distanceMoved = Vector3.Distance(lastPos, transform.position);
-        currentSpeed = distanceMoved / Time.deltaTime;
+        if (Time.deltaTime <= 0.0f) return;
+
+        Vector3 instantVelocity = (transform.position - lastPos) / Time.deltaTime;
+        currentVelocity = Vector3.Lerp(currentVelocity, instantVelocity, smoothing);
+        currentSpeed = currentVelocity.magnitude;
+
         lastPos = transform.position;
     }
 }
