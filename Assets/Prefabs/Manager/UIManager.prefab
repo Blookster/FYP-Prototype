@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1234489548411340834}
-  - component: {fileID: 4408045548944969617}
+  - component: {fileID: 8095990693908682367}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4408045548944969617
+--- !u!114 &8095990693908682367
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -44,4 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8a4a00806c9af4ba7ed871e5b45f76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  UI: {fileID: 7002191125344507998, guid: 120c5e12d35aa634fabb9e8259815a1b, type: 3}
+  timerText: {fileID: 0}
+  p_HpSlider: {fileID: 0}
+  e_HpSlider: {fileID: 0}
+  p_GuardSlider: {fileID: 0}
+  e_GuardSlider: {fileID: 0}
