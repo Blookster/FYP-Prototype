@@ -39,7 +39,7 @@ public class AttackPointManager : MonoBehaviour
 
     public int spawnLimit;
     [SerializeField]
-    int currentSpawnLimit = 0;
+    int currentSpawnLimit;
 
     public float roundDuration;
 
@@ -63,7 +63,7 @@ public class AttackPointManager : MonoBehaviour
 
     void InitiateNewGame()
     {
-        currentSpawnLimit = 0;
+        currentSpawnLimit = spawnLimit;
         SpawnAttackPoint();
         ActivateTimer();
     }
@@ -83,7 +83,7 @@ public class AttackPointManager : MonoBehaviour
 
         AudioManager.instance.Play(1, "hpChangeSfx", false);
 
-        if (currentSpawnLimit >= spawnLimit)
+        if (currentSpawnLimit <= 0)
         {
             DeactivateTimer();
             InitiateNewGame();
@@ -97,7 +97,8 @@ public class AttackPointManager : MonoBehaviour
     public void SpawnAttackPoint()
     {
         currentAttackPoint = Instantiate(attackPoints[Random.Range(0, attackPoints.Count)], spawnPoint.transform.position, Quaternion.identity);
-        currentSpawnLimit += 1;
+        currentSpawnLimit--;
+        UIManager.instance.UpdateRemainBallUI(currentSpawnLimit);
     }
 
     IEnumerator I_SpawnAfterDelay()

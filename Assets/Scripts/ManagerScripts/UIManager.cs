@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
 
     public TMP_Text timerText;
 
+    public TMP_Text remainBallText;
+
     [Header("HP Sliders")]
     public Slider p_HpSlider; //player
     public Slider e_HpSlider; //enemy
@@ -94,6 +96,14 @@ public class UIManager : MonoBehaviour
         {
             if (PlayerParameter.instance != null) p_GuardSlider.maxValue = PlayerParameter.instance.maxGuard;
             p_GuardSlider.value = guard;
+        }
+    }
+
+    public void UpdateRemainBallUI(int currentRemainBall)
+    {
+        if (remainBallText != null)
+        {
+            remainBallText.text = "Remain Ball: " + currentRemainBall;
         }
     }
 }
