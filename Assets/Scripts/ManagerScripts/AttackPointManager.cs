@@ -49,6 +49,8 @@ public class AttackPointManager : MonoBehaviour
     [SerializeField]
     bool isCountingTime;
 
+    public EnemyController enemyController;
+
     private void Awake()
     {
         if (instance != null) Destroy(this);
@@ -125,10 +127,11 @@ public class AttackPointManager : MonoBehaviour
         }
         else if (roundTimer <= 0)
         {
-            GameManager.instance.playerHealthscript.TakeDamage(10);
-            AudioManager.instance.Play(1, "hpChangeSfx", false);
+            //GameManager.instance.playerHealthscript.TakeDamage(10);
+            //AudioManager.instance.Play(1, "hpChangeSfx", false);
 
-            UIManager.instance.UpdatePlayerHpSlider(PlayerParameter.instance.currentHp);
+            EnemyParameter.instance.enemyController.AttackWhenTimeIsOver();
+
             DeactivateTimer();
 
             Destroy(currentAttackPoint);

@@ -8,19 +8,11 @@ public class P_HealthSystem : MonoBehaviour
     [Header("References")]
     public PlayerParameter playerParameter;
 
-    [Header("Health Bar Slider")]
-    public Slider hpSlider;
-
     public event Action<float, float> OnHealthChanged;
     public event Action OnDied;
 
     public bool IsDead => playerParameter != null ? playerParameter.IsDead : true;
     public bool guardBreak => playerParameter != null ? playerParameter.guardBreak : true;
-
-    private P_HealthSystem()
-    {
-        
-    }
 
     void Awake()
     {
@@ -40,7 +32,9 @@ public class P_HealthSystem : MonoBehaviour
 
     void Start()
     {
-        RefreshUI();
+
+        UIManager.instance.UpdatePlayerHpSlider(playerParameter.currentHp);
+
     }
 
     // Always pass a positive number. Mathf.Abs makes a wrong-signed call harmless.
@@ -60,7 +54,8 @@ public class P_HealthSystem : MonoBehaviour
         // Clamp keeps HP between 0 and max so it never goes negative or overheals.
         playerParameter.currentHp = Mathf.Clamp(playerParameter.currentHp + delta, 0.0f, playerParameter.maxHp);
 
-        RefreshUI();
+        UIManager.instance.UpdatePlayerHpSlider(playerParameter.currentHp);
+
         Debug.Log(gameObject.name + " HP: " + playerParameter.currentHp + " / " + playerParameter.maxHp);
 
         // "?." = "only call if someone has subscribed" (avoids a null error when nobody listens).
@@ -73,17 +68,10 @@ public class P_HealthSystem : MonoBehaviour
     {
         if (playerParameter == null) return;
         playerParameter.currentHp = playerParameter.maxHp;
-        RefreshUI();
+
+        UIManager.instance.UpdatePlayerHpSlider(playerParameter.currentHp);
+
         OnHealthChanged?.Invoke(playerParameter.currentHp, playerParameter.maxHp);
     }
-
-
-    // Keeps the Slider in sync. Null-checked so the player can use this component
-    // without having a slider at all.
-    void RefreshUI()
-    {
-        if (hpSlider == null || playerParameter == null) return;
-        hpSlider.maxValue = playerParameter.maxHp;
-        hpSlider.value = playerParameter.currentHp;
-    }
+    
 }

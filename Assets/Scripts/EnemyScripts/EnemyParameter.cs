@@ -57,6 +57,7 @@ public class EnemyParameter : MonoBehaviour
     public FighterVisualManager visualManager;
     public Rigidbody rb;
     public P_FSM p_fsm;
+    public EnemyController enemyController;
 
     public Vector3 fixedPosition;
     public Vector3[] originalHandPositions;
@@ -84,6 +85,7 @@ public class EnemyParameter : MonoBehaviour
 
     public bool IsDead => currentHp <= 0.0f;
     public bool guardBreak => currentGuard <= 0.0f;
+
     void Awake()
     {
         if (instance == null) instance = this;
@@ -93,8 +95,9 @@ public class EnemyParameter : MonoBehaviour
     void Start()
     {
         // Initalization of Components
-        rb = gameObject.GetComponent<Rigidbody>();
-        healthSystem = gameObject.GetComponent<E_HealthSystem>();
-        visualManager = gameObject.GetComponent<FighterVisualManager>();
+        rb = GetComponent<Rigidbody>();
+        healthSystem = GetComponent<E_HealthSystem>();
+        visualManager = GetComponent<FighterVisualManager>();
+        enemyController = GetComponent<EnemyController>();
     }
 }

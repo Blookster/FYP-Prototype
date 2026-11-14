@@ -36,7 +36,8 @@ public class E_HealthSystem : MonoBehaviour
 
     void Start()
     {
-        RefreshUI();
+        UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
+        UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
     }
 
     public void TakeDamage(float amount)
@@ -73,7 +74,8 @@ public class E_HealthSystem : MonoBehaviour
 
         enemyParameter.currentHp = Mathf.Clamp(enemyParameter.currentHp + delta, 0.0f, enemyParameter.maxHp);
 
-        RefreshUI();
+        UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
+
         Debug.Log($"{gameObject.name} HP: {enemyParameter.currentHp} / {enemyParameter.maxHp}");
 
         OnHealthChanged?.Invoke(enemyParameter.currentHp, enemyParameter.maxHp);
@@ -87,7 +89,8 @@ public class E_HealthSystem : MonoBehaviour
 
         enemyParameter.currentGuard = Mathf.Clamp(enemyParameter.currentGuard + delta, 0.0f, enemyParameter.maxGuard);
 
-        RefreshUI();
+        UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
+
         OnGuardChanged?.Invoke(enemyParameter.currentGuard, enemyParameter.maxGuard);
     }
 
@@ -96,16 +99,12 @@ public class E_HealthSystem : MonoBehaviour
         if (enemyParameter == null) return;
         enemyParameter.currentHp = enemyParameter.maxHp;
         enemyParameter.currentGuard = enemyParameter.maxGuard;
-        RefreshUI();
+
+        UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
+        UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
+
         OnHealthChanged?.Invoke(enemyParameter.currentHp, enemyParameter.maxHp);
         OnGuardChanged?.Invoke(enemyParameter.currentGuard, enemyParameter.maxGuard);
     }
 
-    void RefreshUI()
-    {
-        if (enemyParameter == null || UIManager.instance == null) return;
-
-        UIManager.instance.UpdateEnemyHpSlider(enemyParameter.currentHp);
-        UIManager.instance.UpdateEnemyGuardSlider(enemyParameter.currentGuard);
-    }
 }
