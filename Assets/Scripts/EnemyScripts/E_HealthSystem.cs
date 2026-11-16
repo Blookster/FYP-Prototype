@@ -85,6 +85,7 @@ public class E_HealthSystem : MonoBehaviour
         if (enemyParameter.currentHp <= 0)
         {
             GameManager.instance.OnEnemyDied();
+            GetComponent<Animator>().SetTrigger("Dead");
         }
     }
 

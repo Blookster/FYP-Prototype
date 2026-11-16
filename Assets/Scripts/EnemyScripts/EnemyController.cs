@@ -17,7 +17,7 @@ public class EnemyController : MonoBehaviour
 
     public void ActivePunch()
     {
-        GameManager.instance.playerHealthscript.TakeDamage(1000);
+        GameManager.instance.playerHealthscript.TakeDamage(10);
         AudioManager.instance.Play(1, "hpChangeSfx", false);
     }
 }
