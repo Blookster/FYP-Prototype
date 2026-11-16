@@ -16,6 +16,8 @@ public class ATP_Script : MonoBehaviour
     public float maxAllowedAngle = 70.0f;
     public float minPunchSpeed = 0.8f;
 
+    public Transform vFXSpawnPos;
+
     private void Start()
     {
         isActive = false;
@@ -53,14 +55,18 @@ public class ATP_Script : MonoBehaviour
         {
             case "F_ATP": // Straight punch into the target (+forward)
                 requiredDir = transform.forward;
+                VFXManager.instance.SpawnHitVFXInFront(vFXSpawnPos);
                 break;
             case "L_ATP": // Punch coming from the left side moving right (+right)
                 requiredDir = transform.right;
+                VFXManager.instance.SpawnHitVFXInLeft(vFXSpawnPos);
                 break;
             case "R_ATP": // Punch coming from the right side moving left (-right)
+                VFXManager.instance.SpawnHitVFXInRight(vFXSpawnPos);
                 requiredDir = -transform.right;
                 break;
             case "B_ATP": // Uppercut coming from the bottom moving up (+up)
+                VFXManager.instance.SpawnHitVFXInBottom(vFXSpawnPos);
                 requiredDir = transform.up;
                 break;
             default:

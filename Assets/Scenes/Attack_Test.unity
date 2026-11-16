@@ -656,6 +656,18 @@ PrefabInstance:
       value: 63.64574
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 43baeb6c3b69c8947887bc0879795cd8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 43baeb6c3b69c8947887bc0879795cd8, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 43baeb6c3b69c8947887bc0879795cd8, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 43baeb6c3b69c8947887bc0879795cd8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.052
       objectReference: {fileID: 0}
@@ -1463,6 +1475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LockPosScript
   headSet: {fileID: 955911447}
+  headSetTran: {fileID: 0}
 --- !u!1 &997993579
 GameObject:
   m_ObjectHideFlags: 0
@@ -1537,6 +1550,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1698610245353539465, guid: c2e3873a8c22b7d4cab8b801e220ec8e, type: 3}
       propertyPath: m_MoveSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698610245353539465, guid: c2e3873a8c22b7d4cab8b801e220ec8e, type: 3}
+      propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2745417488594962387, guid: c2e3873a8c22b7d4cab8b801e220ec8e, type: 3}
@@ -2264,12 +2281,12 @@ GameObject:
   - component: {fileID: 1777611852}
   - component: {fileID: 1777611851}
   - component: {fileID: 1777611850}
-  - component: {fileID: 1777611855}
   - component: {fileID: 1777611858}
   - component: {fileID: 1777611857}
   - component: {fileID: 1777611860}
   - component: {fileID: 1777611861}
   - component: {fileID: 1777611862}
+  - component: {fileID: 1777611863}
   m_Layer: 0
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -2364,40 +2381,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1777611849}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.36143994, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 120328642}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &1777611855
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1777611849}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 10
-  m_CollisionDetection: 0
 --- !u!114 &1777611857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2459,7 +2449,7 @@ MonoBehaviour:
   inputHandler: {fileID: 0}
   healthSystem: {fileID: 1777611862}
   visualManager: {fileID: 0}
-  rb: {fileID: 1777611855}
+  rb: {fileID: 1777611863}
   xrOrigin: {fileID: 120328642}
   fixedLocalPosition: {x: 0, y: 0, z: 0}
   originalHandPositions: []
@@ -2494,6 +2484,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::P_HealthSystem
   playerParameter: {fileID: 1777611860}
   isDead: 0
+--- !u!54 &1777611863
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777611849}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 0
 --- !u!1 &1836699395 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8978681834564453995, guid: 8d5cc2a74d773dc47bad19dd42289bfd, type: 3}
@@ -2517,6 +2534,54 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9097716890918671028, guid: 120c5e12d35aa634fabb9e8259815a1b, type: 3}
   m_PrefabInstance: {fileID: 1464723783}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1940449687
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1940449688}
+  - component: {fileID: 1940449689}
+  m_Layer: 0
+  m_Name: VFXManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1940449688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940449687}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1940449689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940449687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 461956a61a4e0a94a84eacac84f79892, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VFXManager
+  hitVFX_F: {fileID: 9036491278329066204, guid: 8bb6a61a0598ce24d8c647320f0ba988, type: 3}
+  hitVFX_L: {fileID: 2642747211372728854, guid: 7b688dc8249c2ad4495b398c5718baec, type: 3}
+  hitVFX_R: {fileID: 3613565061228285290, guid: 622e98a221217704c885f5d4663afe74, type: 3}
+  hitVFX_B: {fileID: 9153685808368391913, guid: bd0956763d2a4324fa8d824c4c162a9a, type: 3}
 --- !u!1 &2034142299 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8690195944969650223, guid: 4fc97df2e89ab6946b8029f5d3bfb56e, type: 3}
@@ -3256,8 +3321,9 @@ SceneRoots:
   - {fileID: 1585553131}
   - {fileID: 173651529}
   - {fileID: 997993580}
+  - {fileID: 1019483824}
+  - {fileID: 1940449688}
   - {fileID: 955650266}
   - {fileID: 1464723783}
-  - {fileID: 1019483824}
   - {fileID: 2107690749}
   - {fileID: 1049557843}

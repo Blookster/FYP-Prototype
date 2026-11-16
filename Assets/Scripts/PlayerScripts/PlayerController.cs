@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
         currentPlayerState = FighterState.Idle;
 
         // Cache all modular component references
-        playerParameter.rb = GetComponent<Rigidbody>();
+        //playerParameter.rb = GetComponent<Rigidbody>();
         playerParameter.inputHandler = GetComponent<PlayerInputHandler>();
         playerParameter.healthSystem = GetComponent<P_HealthSystem>();
         playerParameter.visualManager = GetComponent<FighterVisualManager>();

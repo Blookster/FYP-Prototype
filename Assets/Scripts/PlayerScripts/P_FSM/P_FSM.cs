@@ -21,7 +21,7 @@ using System.Collections.Generic;
 //  [CHANGED] The special power scales the gloves relative to their ORIGINAL size
 //        (before it forced scale to exactly 1.5 and back to exactly 1).
 
-[RequireComponent(typeof(Rigidbody))]
+//[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(P_HealthSystem))]
 [RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(FighterVisualManager))]
@@ -56,7 +56,7 @@ public class P_FSM : MonoBehaviour
         playerParameter = gameObject.GetComponent<PlayerParameter>();
 
         // Cache all modular component references
-        playerParameter.rb = GetComponent<Rigidbody>();
+        //playerParameter.rb = GetComponent<Rigidbody>();
         playerParameter.inputHandler = GetComponent<PlayerInputHandler>();
         playerParameter.healthSystem = GetComponent<P_HealthSystem>();
         playerParameter.visualManager = GetComponent<FighterVisualManager>();
