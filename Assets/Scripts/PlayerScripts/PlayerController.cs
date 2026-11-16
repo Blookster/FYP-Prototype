@@ -200,7 +200,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
         // A defeated player should not take additional damage.
-        if (playerParameter.healthSystem.IsDead)
+        if (playerParameter.healthSystem.isDead)
             return;
         if (currentPlayerState == FighterState.Blocking)
         {

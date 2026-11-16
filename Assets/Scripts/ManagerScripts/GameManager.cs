@@ -31,7 +31,8 @@ public class GameManager : MonoBehaviour
     //public UIManager uiManager;
 
     [Header("Fighters (auto-found if left empty)")]
-    public FSM enemyFsm;
+    //public FSM enemyFsm;
+    public EnemyController enemyController;
     public P_FSM playerFsm;
 
     [Header("Fight Setup (VR distance fix)")]
@@ -41,10 +42,6 @@ public class GameManager : MonoBehaviour
     public float engagementDistance = 1.2f;
     [Tooltip("Seconds to wait after pressing Play before the fight starts. Gives VR head tracking time to settle.")]
     public float readyDelay = 2.0f;
-
-    [Header("Game Over")]
-    public GameObject WinPanel;
-    public GameObject LosePanel;
 
     public float restartDelay = 5.0f;
 
@@ -61,12 +58,6 @@ public class GameManager : MonoBehaviour
     {
         audioManager = Instantiate(audioManager_P).GetComponent<AudioManager>();
         attackPointManager = Instantiate(attackPointManager_P, transform.position, Quaternion.identity).GetComponent<AttackPointManager>();
-
-        if (WinPanel != null)
-            WinPanel.SetActive(false);
-
-        if (LosePanel != null)
-            LosePanel.SetActive(false);
 
         //uiManager = Instantiate(uiManager_P, transform.position, Quaternion.identity).GetComponent<UIManager>();
 
@@ -113,6 +104,8 @@ public class GameManager : MonoBehaviour
 
         State = GameState.Playing;
 
+        Debug.Log("State is playing");
+
         //attackPointManager.BeginRound(); // the first bubble appears in front of the player
 
         Debug.Log("[GameManager] FIGHT!");
@@ -130,11 +123,11 @@ public class GameManager : MonoBehaviour
         PlayerParameter pp = PlayerParameter.instance;
         if (pp == null || pp.headCamera == null || pp.xrOrigin == null) return;
 
-        Vector3 enemyPos = enemyFsm.transform.position;
+        Vector3 enemyPos = enemyController.transform.position;
 
         Vector3 awayFromEnemy = pp.xrOrigin.position - enemyPos;
         awayFromEnemy.y = 0.0f;
-        if (awayFromEnemy.sqrMagnitude < 0.0001f) awayFromEnemy = -enemyFsm.transform.forward;
+        if (awayFromEnemy.sqrMagnitude < 0.0001f) awayFromEnemy = -enemyController.transform.forward;
         awayFromEnemy.Normalize();
 
         Vector3 targetHead = enemyPos + awayFromEnemy * engagementDistance;
@@ -150,13 +143,15 @@ public class GameManager : MonoBehaviour
     // ------------------------------------------------------------------------------------
     //  ENDING THE GAME
     // ------------------------------------------------------------------------------------
-    void OnEnemyDied()  { EndGame(GameState.Victory, WinPanel); }
-    void OnPlayerDied() { EndGame(GameState.Defeat, LosePanel); }
+    public void OnEnemyDied()  { EndGame(GameState.Victory, UIManager.instance.winPanel); }
+    public void OnPlayerDied() { EndGame(GameState.Defeat, UIManager.instance.losePanel); }
 
     void EndGame(GameState result, GameObject panel)
     {
         // If the fight is already decided, ignore the second death (both KO'd in the same frame).
         if (State != GameState.Playing) return;
+
+        Debug.Log("Ending Game");
 
         State = result;
         Debug.Log("[GameManager] Game over: " + result);

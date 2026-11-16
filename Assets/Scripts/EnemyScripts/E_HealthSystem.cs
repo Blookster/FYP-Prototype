@@ -78,9 +78,14 @@ public class E_HealthSystem : MonoBehaviour
 
         Debug.Log($"{gameObject.name} HP: {enemyParameter.currentHp} / {enemyParameter.maxHp}");
 
-        OnHealthChanged?.Invoke(enemyParameter.currentHp, enemyParameter.maxHp);
+        //OnHealthChanged?.Invoke(enemyParameter.currentHp, enemyParameter.maxHp);
 
-        if (IsDead) OnDied?.Invoke();
+        //if (IsDead) OnDied?.Invoke();
+
+        if (enemyParameter.currentHp <= 0)
+        {
+            GameManager.instance.OnEnemyDied();
+        }
     }
 
     public void ChangeSheild(float delta)

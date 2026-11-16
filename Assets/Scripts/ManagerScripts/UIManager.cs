@@ -6,8 +6,8 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
+    [Header("Text UI")]
     public TMP_Text timerText;
-
     public TMP_Text remainBallText;
 
     [Header("HP Sliders")]
@@ -17,6 +17,10 @@ public class UIManager : MonoBehaviour
     [Header("Guard Sliders")]
     public Slider p_GuardSlider;
     public Slider e_GuardSlider;
+
+    [Header("Game Over Panel")]
+    public GameObject winPanel;
+    public GameObject losePanel;
 
 
     private void Awake()
@@ -56,6 +60,12 @@ public class UIManager : MonoBehaviour
                 p_GuardSlider.value = PlayerParameter.instance.currentGuard;
             }
         }
+
+        if (winPanel != null)
+            winPanel.SetActive(false);
+
+        if (losePanel != null)
+            losePanel.SetActive(false);
     }
 
     public void UpdateTimerUI(int time)

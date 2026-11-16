@@ -231,7 +231,7 @@ public class P_FSM : MonoBehaviour
     public void HandleHit(float damageAmount)
     {
         // 1) Already knocked out: nothing more to hit.
-        if (playerParameter.healthSystem.IsDead) return;
+        if (playerParameter.healthSystem.isDead) return;
 
         // 2) Staggered from the previous hit = short invincibility (see P_BeenHitState).
         if (P_currentState == P_FighterState.BeenHit) return;
@@ -257,7 +257,7 @@ public class P_FSM : MonoBehaviour
         if (playerParameter.visualManager != null) playerParameter.visualManager.TriggerFlash(Color.red, 0.15f);
 
         // Stagger (and i-frames) - but not if that hit just killed us (GameManager is handling the ending).
-        if (!playerParameter.healthSystem.IsDead)
+        if (!playerParameter.healthSystem.isDead)
         {
             P_TransitionState(P_FighterState.BeenHit);
         }
